@@ -17,16 +17,11 @@ import {
     StyleSheet,
 } from "react-native"
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-
-// import WebView from "react-native-webview";
-// import { VdoPlayerView } from "vdocipher-rn-bridge";
-// import WebView from "react-native-webview";
-// import Video, { VideoRef } from 'react-native-video';
-// import { VdoPlayerView } from 'vdocipher-rn-bridge';
-import Video from 'react-native-video'; // import Video from react-native-video like your normally would
+import app from "../../../package.json";
+import Video from 'react-native-video';
 import muxReactNativeVideo from '@mux/mux-data-react-native-video';
-import app from '../../../package.json'
 const MuxVideo = muxReactNativeVideo(Video);
+
 const CourseDetailsScreen = () => {
     const [activeButton, setActiveButton] = useState("About");
     const { user, loading } = useUser();
@@ -35,10 +30,10 @@ const CourseDetailsScreen = () => {
     const courseData: CoursesType = JSON.parse(item as string);
     const [courseInfo, setCourseInfo] = useState<CoursesType>();
     const [checkPurchased, setCheckPurchased] = useState(false);
-
-    const [showVideo, setShowVideo] = useState(false);
-    const ref = React.useRef<any>(null);
-    useEffect(() => { }, []);
+    const [videoData, SetVideoData] = useState({
+        id:"",
+        videoId: ""
+    })
 
     useEffect(() => {
         if (user?.courses.find((i: any) => i._id === courseData._id)) {
@@ -46,10 +41,6 @@ const CourseDetailsScreen = () => {
         }
     }, [user])
 
-    const [videoData, setVideoData] = useState({
-        otp: "",
-        playbackInfo: ""
-    });
 
     const LoadCourse = async () => {
         let paymented: { _id: string }[] = [];
@@ -60,14 +51,15 @@ const CourseDetailsScreen = () => {
             }
             const response = await axios.get(`${URL_SERVER}/get-courses`);
             const _data: CoursesType = response.data?.courses?.filter((item: any) => item._id === courseData._id)[0];
-            axios.post(`${URL_SERVER}/getVdoCipherOTP`, {
-                videoId: _data.demoUrl
-            })
+            axios.get(`${URL_SERVER}/getMuxVideoOTP?videoId=${_data.demoUrl}`)
                 .then((res) => {
-                    setVideoData({
-                        otp: res?.data.otp,
-                        playbackInfo: res?.data.playbackInfo
+                    SetVideoData({
+                        id: res.data.data.id,
+                        videoId: res.data.data.playback_ids[0].id
                     });
+                })
+                .catch((error) => {
+                    console.log(error);
                 })
 
             const isPaymentedCourse = paymented.some((item) => item._id === _data._id);
@@ -83,6 +75,7 @@ const CourseDetailsScreen = () => {
 
     useEffect(() => {
         LoadCourse();
+        
     }, [])
 
     useFocusEffect(
@@ -127,15 +120,7 @@ const CourseDetailsScreen = () => {
     if (!fontsLoaded && !fontError) {
         return null;
     }
-    const embedInfo = {
-        otp: '______',
-        playbackInfo: '______',
-        playerConfig: '______' // <-- player id goes here
-    };
-    useEffect(() => {
-        embedInfo.otp = videoData.otp;
-        embedInfo.playbackInfo = videoData.playbackInfo;
-    }, [videoData.otp])
+
     return (
         <>
             {loading ? (
@@ -185,17 +170,12 @@ const CourseDetailsScreen = () => {
                                     </Text>
                                 </View>
                             </View>
-                            <Image
-                                source={{ uri: courseData?.thumbnail.url! }}
-                                style={{ width: "100%", height: 230, borderRadius: 6 }}
-                            />
                             <View style={{ width: "100%", aspectRatio: 18 / 9, borderRadius: 10 }}>
-
                                 <MuxVideo
                                     style={styles.video}
                                     source={{
                                         uri:
-                                            'https://stream.mux.com/TNeEM1221KC00xop02yHEf02ahkXbAjQezSFTwMlceZJa8.m3u8',
+                                            `https://stream.mux.com/${videoData.videoId}.m3u8`,
                                     }}
                                     controls
                                     muted
@@ -204,29 +184,13 @@ const CourseDetailsScreen = () => {
                                         application_version: app.version,      // the version of your application (optional, but encouraged)
                                         data: {
                                             env_key: '8m01he8sfkme3cie3juold22i',     // (required)
-                                            video_id: 'OM002jcb6iQUXZqpIzYrZiGUXT5HA5l005dzFW12UVmvQ',             // (required)
+                                            video_id: videoData.id,             // (required)
                                             video_title: 'My awesome video',
                                             player_software_version: '5.0.2',     // (optional, but encouraged) the version of react-native-video that you are using
                                             player_name: 'React Native Player',  // See metadata docs for available metadata fields https://docs.mux.com/docs/web-integration-guide#section-5-add-metadata
                                         },
                                     }}
                                 />
-
-                                {/* <WebView
-                                    source={{ uri: `https://player.vdocipher.com/v2/?otp=${videoData.otp}&playbackInfo=${videoData.playbackInfo}&player=yhSoI6rb4DYEOhvk` }}
-                                    allowsFullscreenVideo={true}
-                                    javaScriptEnabled={true}
-                                    originWhitelist={['*']}
-                                /> */}
-                                {/* <WebView
-                                    source={{ uri: `Snaptik.app_7348794117838687506.mp4` }}
-                                    allowsFullscreenVideo={true}
-                                    javaScriptEnabled={true}
-                                    originWhitelist={['*']}
-                                /> */}
-                                {/* <VdoPlayerView
-                                    embedInfo={embedInfo}
-                                /> */}
                             </View>
                             <Text
                                 style={{
@@ -438,7 +402,7 @@ const CourseDetailsScreen = () => {
                             )}
                             {activeButton === "Lessons" && (
                                 <View style={{ marginVertical: 25 }}>
-                                    <CourseLesson courseDetails={courseData} />
+                                    <CourseLesson key={"number-1"} courseDetails={courseData} />
                                 </View>
                             )}
                             {activeButton === "Reviews" && (

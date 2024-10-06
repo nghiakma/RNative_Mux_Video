@@ -15,6 +15,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@bounceapp/iframe": "^0.3.0",
     "@expo-google-fonts/nunito": "^0.2.3",
     "@expo-google-fonts/raleway": "^0.2.3",
     "@expo/vector-icons": "^14.0.2",
@@ -48,7 +49,9 @@
     "react-native-swiper": "^1.6.0",
     "react-native-toast-notifications": "^3.4.0",
     "react-native-video": "^6.6.2",
-    "react-native-web": "~0.19.10"
+    "react-native-web": "~0.19.10",
+    "react-native-webview": "^13.12.2",
+    "vdocipher-rn-bridge": "^1.20.8"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

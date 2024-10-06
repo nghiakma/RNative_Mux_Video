@@ -11,6 +11,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
 import { widthPercentageToDP } from "react-native-responsive-screen";
 import { Toast } from "react-native-toast-notifications";
+import app from "../../app.json";
+import Video from 'react-native-video';
+import muxReactNativeVideo from '@mux/mux-data-react-native-video';
+const MuxVideo = muxReactNativeVideo(Video);
 
 
 const styles = StyleSheet.create({
@@ -42,25 +46,27 @@ const CourseAccessScreen = () => {
     const [reviewAvailable, setReviewAvailable] = useState(false);
 
     const [videoData, setVideoData] = useState({
-        otp: "",
-        playbackInfo: ""
+        id: "",
+        videoId: ""
     });
 
     useEffect(() => {
         if (courseContentData[activeVideo]) {
-            axios.post(`${URL_SERVER}/getVdoCipherOTP`, {
-                videoId: courseContentData[activeVideo].videoUrl
-            })
+            axios.get(`${URL_SERVER}/getMuxVideoOTP?videoId=${courseContentData[activeVideo].videoUrl}`)
                 .then((res) => {
-                    setVideoData(res.data);
+                    console.log("Thay đổi video");
+                    setVideoData({
+                        id: res.data.data.id,
+                        videoId: res.data.data.playback_ids[0].id
+                    });
                 })
         }
-    }, [courseContentData[activeVideo]])
+    }, [courseContentData[activeVideo], activeVideo])
 
     useFocusEffect(
         useCallback(() => {
-            const subscription = async () => {
-                await FetchCourseContent();
+            const subscription = () => {
+                FetchCourseContent();
                 const isReviewAvailable = courseReviews.find(
                     (i: any) => i.user._id === user?._id
                 )
@@ -83,7 +89,6 @@ const CourseAccessScreen = () => {
                 }
             })
             setIsLoading(false);
-            console.log(response.data.content[0].links);
             setCourseContentData(response.data.content);
         } catch (error) {
             console.log(error);
@@ -169,22 +174,26 @@ const CourseAccessScreen = () => {
             ) : (
                 <ScrollView style={{ flex: 1, padding: 10 }}>
                     <View style={{ width: "100%", aspectRatio: 18 / 9, borderRadius: 10 }}>
-                        {/* <Iframe
-                            uri={`https://player.vdocipher.com/v2/?otp=${videoData?.otp}&playbackInfo=${videoData.playbackInfo}&player=yhSoI6rb4DYEOhvk`}
-                            style={{ flex: 1 }}
-                        /> */}
-                        {/* <Iframe
-                            uri={courseContentData[activeVideo].videoUrl!}
-                            style={{ flex: 1 }}
-
-                        /> */}
-                        {/* <WebView
-                            source={{ uri: courseContentData[activeVideo]?.videoUrl! }}
-                            allowsFullscreenVideo={true}
-                            javaScriptEnabled={true}
-                            originWhitelist={['*']}
-                            contentMode="mobile"
-                        /> */}
+                        <MuxVideo
+                            style={{width: "100%", height: 200}}
+                            source={{
+                                uri:
+                                    `https://stream.mux.com/${videoData.videoId}.m3u8`,
+                            }}
+                            controls
+                            muted
+                            muxOptions={{
+                                application_name: app.expo.name,            // (required) the name of your application
+                                application_version: app.expo.version,      // the version of your application (optional, but encouraged)
+                                data: {
+                                    env_key: '8m01he8sfkme3cie3juold22i',     // (required)
+                                    video_id: videoData.id,             // (required)
+                                    video_title: 'My awesome video',
+                                    player_software_version: '5.0.2',     // (optional, but encouraged) the version of react-native-video that you are using
+                                    player_name: 'React Native Player',  // See metadata docs for available metadata fields https://docs.mux.com/docs/web-integration-guide#section-5-add-metadata
+                                },
+                            }}
+                        />
                     </View>
                     <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                         <TouchableOpacity
@@ -330,28 +339,7 @@ const CourseAccessScreen = () => {
                                     fontFamily: "Nunito_500Medium"
                                 }}
                             >
-                                {/* {isExpanded ?
-                                    courseContentData[activeVideo]?.links[0].title
-                                    :
-                                    data?.description.slice(0, 302)
-                                } */}
                             </Text>
-                            {/* {data?.description.length > 302 && (
-                                <TouchableOpacity
-                                    style={{ marginTop: 3 }}
-                                    onPress={() => setIsExpanded(!isExpanded)}
-                                >
-                                    <Text
-                                        style={{
-                                            color: "#2467EC",
-                                            fontSize: 14
-                                        }}
-                                    >
-                                        {isExpanded ? "Thu gọn" : "Xem thêm"}
-                                        {isExpanded ? "-" : "+"}
-                                    </Text>
-                                </TouchableOpacity>
-                            )} */}
                         </View>
                     )}
                     {activeButton === "Q&A" && (

@@ -5,9 +5,8 @@ import { URL_SERVER } from "@/utils/url";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useFocusEffect } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { FlatList, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const index = () => {
     const [courses, setCourses] = useState<CoursesType[]>([]);
