@@ -110,8 +110,7 @@ const HeaderComponent = () => {
                 <TouchableOpacity onPress={() => router.push("/(tabs)/profile")}>
                     <Image
                         style={styles.image}
-                        // source={user?.avatar ? user.avatar.url : UserImage}
-                        source={UserImage}
+                        source={{uri: `${user?.avatar ? user.avatar.url : UserImage}`}}
                     />
                 </TouchableOpacity>
                 <View>

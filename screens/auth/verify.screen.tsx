@@ -116,7 +116,7 @@ const VerifyAccountScreen = () => {
                     ))}
                 </View>
                 <View style={{ marginTop: 10, justifyContent: "center", alignItems: "center" }} >
-                    <CustomButton title="Submit" onPress={() => OnHandleSubmit()} />
+                    <CustomButton title="Xác nhận" onPress={() => OnHandleSubmit()} />
                 </View>
                 <View style={styles.loginLink}>
                     <Text style={[styles.backText, { fontFamily: "Nunito_700Bold" }]}>

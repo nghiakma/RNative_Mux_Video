@@ -23,6 +23,7 @@ const useUser = () => {
                     "refresh-token": refreshToken
                 }
             })
+            console.log(response.data.user.avatar.url);
             setUser(response.data.user);
             setLoading(false);
         } catch (error: any) {

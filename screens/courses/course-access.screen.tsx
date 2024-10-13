@@ -39,7 +39,6 @@ const CourseAccessScreen = () => {
     const [courseContentData, setCourseContentData] = useState<CourseDataType[]>([]);
     const [activeVideo, setActiveVideo] = useState(0);
     const [activeButton, setActiveButton] = useState("About");
-    const [isExpanded, setIsExpanded] = useState(false);
     const [question, setQuestion] = useState("");
     const [rating, setRating] = useState(1);
     const [review, setReview] = useState("");
