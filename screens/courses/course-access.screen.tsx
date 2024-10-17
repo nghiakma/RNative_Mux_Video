@@ -339,6 +339,26 @@ const CourseAccessScreen = () => {
                                 }}
                             >
                             </Text>
+                            <TouchableOpacity
+                                onPress={() => router.push({
+                                    pathname: '/course-quizz',
+                                    params: {
+                                        courseContentData: JSON.stringify(courseContentData)
+                                    }
+                                })}
+                                >
+                                        <Text
+                                            style={{
+                                                color: "#525258",
+                                                fontSize: 16,
+                                                marginTop: 10,
+                                                textAlign: "justify",
+                                                fontFamily: "Nunito_500Medium"
+                                            }}
+                                        >
+                                            {'>>>'} Tổng kết bài học
+                                        </Text>
+                            </TouchableOpacity>
                         </View>
                     )}
                     {activeButton === "Q&A" && (

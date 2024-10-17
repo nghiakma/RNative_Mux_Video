@@ -76,6 +76,14 @@ function RootLayoutNav() {
           }}
         />
         <Stack.Screen
+          name="(routes)/course-quizz/index"
+          options={{
+            headerShown: true,
+            title: "Bài tập cuối video",
+            headerBackTitle: "Trở về"
+          }}
+        />
+        <Stack.Screen
           name="(routes)/cart/index"
           options={{
             headerShown: true,
