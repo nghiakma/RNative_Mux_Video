@@ -17,6 +17,13 @@ type LinkType = {
     url: string;
 }
 
+type IQuizz = {
+    _id: string | any;
+    question: string;
+    options: string[];
+    correctAnswer: string;
+}
+
 type CourseDataType = {
     _id: string | any;
     title: string;
@@ -27,6 +34,7 @@ type CourseDataType = {
     videoLength: number;
     videoPlayer: string;
     links: LinkType[];
+    iquizz: IQuizz[];
     suggestion: string;
     questions: CommentType[];
 }

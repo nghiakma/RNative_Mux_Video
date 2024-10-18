@@ -343,7 +343,8 @@ const CourseAccessScreen = () => {
                                 onPress={() => router.push({
                                     pathname: '/course-quizz',
                                     params: {
-                                        courseContentData: JSON.stringify(courseContentData)
+                                        courseData: courseData,
+                                        activeVideo: activeVideo
                                     }
                                 })}
                                 >
