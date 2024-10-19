@@ -43,6 +43,7 @@ const CourseAccessScreen = () => {
     const [rating, setRating] = useState(1);
     const [review, setReview] = useState("");
     const [reviewAvailable, setReviewAvailable] = useState(false);
+    const [token, setToken] = useState('');
 
     const [videoData, setVideoData] = useState({
         id: "",
@@ -53,13 +54,23 @@ const CourseAccessScreen = () => {
         if (courseContentData[activeVideo]) {
             axios.get(`${URL_SERVER}/getMuxVideoOTP?videoId=${courseContentData[activeVideo].videoUrl}`)
                 .then((res) => {
-                    console.log("Thay đổi video");
                     setVideoData({
                         id: res.data.data.id,
                         videoId: res.data.data.playback_ids[0].id
                     });
+                    axios
+                        .get(`${URL_SERVER}/signedUrlMuxVideo`, {
+                            params: {
+                                videoId: res.data.data.playback_ids[0].id
+                            }
+                        })
+                        .then((res) => {
+                            const token = res.data.token;
+                            setToken(token);
+                        });
                 })
         }
+        console.log(data._id);
     }, [courseContentData[activeVideo], activeVideo])
 
     useFocusEffect(
@@ -76,6 +87,7 @@ const CourseAccessScreen = () => {
             subscription();
         }, [])
     )
+
 
     const FetchCourseContent = async () => {
         try {
@@ -177,7 +189,8 @@ const CourseAccessScreen = () => {
                             style={{width: "100%", height: 200}}
                             source={{
                                 uri:
-                                    `https://stream.mux.com/${videoData.videoId}.m3u8`,
+                                    `https://stream.mux.com/${videoData.videoId}.m3u8?token=${token}`,
+                                    //https://stream.mux.com/uLDvBCbsbbZKXHitkzvJ6DbQIrynoQ8j6BPD6OWk1iA.m3u8?token={JWT}
                             }}
                             controls
                             muted
@@ -344,7 +357,8 @@ const CourseAccessScreen = () => {
                                     pathname: '/course-quizz',
                                     params: {
                                         courseData: courseData,
-                                        activeVideo: activeVideo
+                                        activeVideo: activeVideo,
+                                        id: data._id
                                     }
                                 })}
                                 >

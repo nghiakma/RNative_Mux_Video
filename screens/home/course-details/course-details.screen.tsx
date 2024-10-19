@@ -34,13 +34,14 @@ const CourseDetailsScreen = () => {
         id:"",
         videoId: ""
     })
+    const [token, setToken] = useState('');
+
 
     useEffect(() => {
         if (user?.courses.find((i: any) => i._id === courseData._id)) {
             setCheckPurchased(true);
         }
     }, [user])
-
 
     const LoadCourse = async () => {
         let paymented: { _id: string }[] = [];
@@ -51,15 +52,25 @@ const CourseDetailsScreen = () => {
             }
             const response = await axios.get(`${URL_SERVER}/get-courses`);
             const _data: CoursesType = response.data?.courses?.filter((item: any) => item._id === courseData._id)[0];
-            axios.get(`${URL_SERVER}/getMuxVideoOTP?videoId=${_data.demoUrl}`)
+            axios.get(`${URL_SERVER}/getMuxVideoOTP?videoId=${_data.demoUrl}`) 
                 .then((res) => {
                     SetVideoData({
                         id: res.data.data.id,
                         videoId: res.data.data.playback_ids[0].id
                     });
-                })
-                .catch((error) => {
-                    console.log(error);
+                    axios
+                        .get(`${URL_SERVER}/signedUrlMuxVideo`, {
+                            params: {
+                                videoId: res.data.data.playback_ids[0].id
+                            }
+                        })
+                        .then((res) => {
+                            const token = res.data.token;
+                            setToken(token);
+                        })
+                        .catch(error => {
+                            console.log(error);
+                        });
                 })
 
             const isPaymentedCourse = paymented.some((item) => item._id === _data._id);
@@ -75,7 +86,6 @@ const CourseDetailsScreen = () => {
 
     useEffect(() => {
         LoadCourse();
-        
     }, [])
 
     useFocusEffect(
@@ -83,6 +93,25 @@ const CourseDetailsScreen = () => {
             LoadCourse();
         }, [])
     )
+
+    // useEffect(() => {
+    //     console.log("ABC");
+    //         axios
+    //             .get("http://localhost:8000/api/v1/getMuxVideoOTP", {
+    //                 params: {
+    //                     videoId: videoData.videoId
+    //                 }
+    //             })
+    //             .then((res) => {
+    //                 const token = res.data.token;
+    //                 console.log(token);
+    //                 console.log(videoData.videoId);
+    //                 setToken(token);
+    //             })
+    //             .catch(error => {
+    //                 console.log(error);
+    //             });
+    // }, [videoData.videoId]);
 
     const OnHandleAddToCart = async () => {
         try {
@@ -175,7 +204,7 @@ const CourseDetailsScreen = () => {
                                     style={styles.video}
                                     source={{
                                         uri:
-                                            `https://stream.mux.com/${videoData.videoId}.m3u8`,
+                                            `https://stream.mux.com/${videoData.videoId}.m3u8?token=${token}`,
                                     }}
                                     controls
                                     muted
