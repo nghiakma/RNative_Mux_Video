@@ -1,36 +1,50 @@
+import Loader from "@/components/loader";
 import { URL_SERVER } from "@/utils/url";
 import axios from "axios";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
-import { Toast } from "react-native-toast-notifications";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import useUser from "@/hooks/useUser";
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
 const CourseQuizzScreen = () => {
     const { courseData, activeVideo, id } = useLocalSearchParams();
-    const data: CoursesType = JSON.parse(courseData as string);
-    // const contentVideoQuizz: IQuizz[] = data.courseData[activeVideo as any].iquizz;
-    const [currQuestionIndex, setCurrQuestionIndex] = useState(0);
-    const [score, setScore] = useState(0);
-    const [selectedOption, setSelectedOption] = useState(null);
-    const [isCorrect, setIsCorrect] = useState(null);
-    
-    const [contentVideoQuizz, setContentVideoQuizz] = useState<IQuizz[]>([])
+    const {user} = useUser();
+    const data: CoursesType = JSON.parse(courseData as string);    
     const [questions, setQuestions] = useState<IQuizz[]>([]);
     const [seletedOptions, setSelectedOptions] = useState<{[key: number]: any}>({});
     const [scored, setScored] = useState(0);
     const [showResults, setShowResults] = useState(false);
-
-    const OnHandleNextQuestion = () => {
-        if(contentVideoQuizz.length  === currQuestionIndex){
-            return;
-        }
-        setCurrQuestionIndex(prev => prev + 1);
-        setSelectedOption(null);
-        setIsCorrect(null);
-    }
-
+    const [loading, setLoading] = useState(true);
+    const [lesson, setLesson] = useState<any>(data.courseData[activeVideo as any]);
+    
     useEffect(() => {
+        setLoading(true);
         getQuestions();
+        const description = async () => {
+            try {
+                const accessToken = await AsyncStorage.getItem("access_token");
+                const refreshToken = await AsyncStorage.getItem("refresh_token");
+                const response = await axios.get(`${URL_SERVER}/quizzs/${user?._id}?lessonId=${lesson._id}`,{
+                    headers: {
+                        "access-token": accessToken,
+                        "refresh-token": refreshToken
+                    }
+                });
+                const userId = response.data.userId;
+                const data = response.data.response.filter((item: OwnerQuizz) => item.userId === userId);
+                const _data = data.filter((item: OwnerQuizz) => item.lessonId === lesson._id);
+                const result = _data[_data.length - 1];
+                setSelectedOptions(result.selected_options);
+                setScored(result.scored);
+                setShowResults(true);
+            } catch (error) {
+                console.log(error);
+            }finally{
+                setLoading(false);
+            }
+        }
+        description();
     },[])
 
     const getQuestions = () => {
@@ -40,64 +54,90 @@ const CourseQuizzScreen = () => {
                 const course = response.data.courses.filter(
                     (course: CoursesType) => course._id === id
                 )[0];
+                setLesson(course.courseData[activeVideo as any]);
                 setQuestions(course.courseData[activeVideo as any].iquizz as IQuizz[]);
-                setSelectedOptions({});
-                setShowResults(false);
-            });
+            })
+            .catch((error) => {
+                console.log('>>> Line: 68');
+                console.log(error);
+            })
     }
 
     const OnHandleOptionSelect = (questionIndex: any, option: any) => {
-        setSelectedOptions({
+        const updatedOptions = {
             ...seletedOptions,
             [questionIndex]: option
-        });
+        };
+        setSelectedOptions(updatedOptions);
     }
 
-    const OnHandleSubmit = () => {
+    const OnHandleSubmit = async () => {
         let correctAnswers = 0;
         questions.forEach((question: IQuizz, index: any) => {
-            if(question.options[index] === question.correctAnswer){
+            if (question.options[seletedOptions[index]] === question.correctAnswer) {
                 correctAnswers++;
             }
-            setScored(correctAnswers);
-            setShowResults(true);
-        })
+        });
+        setScored(correctAnswers);
+        setShowResults(true);
+        try {
+            let data = {
+                userId: user?._id,
+                courseId: id,
+                lessonId: lesson._id,
+                scored: correctAnswers,
+                selected_options: seletedOptions
+            }
+            await axios.post(`${URL_SERVER}/save-quizz`, data);
+        } catch (error) {
+            console.log(error);
+        }
+        
+    }
+
+    const onRetry = () => {
+        setSelectedOptions({});
+        setScored(0);
+        setShowResults(false);
     }
 
     return (
         <>
-            <ScrollView style={{backgroundColor: '#aaa', flex: 1}}>
-                { questions.length > 0 &&
-                    questions.map((item: IQuizz, index: number) => (
-                        <View style={styles.options} key={item._id}>
-                            <Text style={styles.question}>
-                                Câu {index + 1}: {item.question} 
-                            </Text>    
-                            <TouchableOpacity
-                                style={[
-                                    styles.option,
-                                    seletedOptions[index] === 0 && styles.selectedOption,
-                                    showResults && item.correctAnswer === item.options[0] && styles.correctOption,
-                                    showResults && seletedOptions[index] === 0 && item.options[seletedOptions[index]] !== item.correctAnswer && styles.wrongOption
-                                ]}
-                                onPress={() => OnHandleOptionSelect(index, 0)}
-                                disabled={showResults}
-                            >
-                                <Text>{item.options[0]}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[
-                                    styles.option,
-                                    seletedOptions[index] === 1 && styles.selectedOption,
-                                    showResults && item.correctAnswer === item.options[1] && styles.correctOption,
-                                    showResults && seletedOptions[index] === 1 && item.options[seletedOptions[index]] !== item.correctAnswer && styles.wrongOption
-                                ]}
-                                onPress={() => OnHandleOptionSelect(index, 1)}
-                                disabled={showResults}
-                            >
-                                <Text>{item.options[1]}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
+            { loading ? (
+                <Loader />
+            ) : (
+                <ScrollView style={{ backgroundColor: '#aaa', flex: 1 }}>
+                    { questions.length > 0 &&
+                        questions.map((item: IQuizz, index: number) => (
+                            <View style={styles.options} key={item._id}>
+                                <Text style={styles.question}>
+                                    Câu {index + 1}: {item.question} 
+                                </Text>    
+                                <TouchableOpacity
+                                    style={[
+                                        styles.option,
+                                        seletedOptions[index] === 0 && styles.selectedOption,
+                                        showResults && item.correctAnswer === item.options[0] && styles.correctOption,
+                                        showResults && seletedOptions[index] === 0 && item.options[seletedOptions[index]] !== item.correctAnswer && styles.wrongOption
+                                    ]}
+                                    onPress={() => OnHandleOptionSelect(index, 0)}
+                                    disabled={showResults}
+                                >
+                                    <Text>{item.options[0]}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[
+                                        styles.option,
+                                        seletedOptions[index] === 1 && styles.selectedOption,
+                                        showResults && item.correctAnswer === item.options[1] && styles.correctOption,
+                                        showResults && seletedOptions[index] === 1 && item.options[seletedOptions[index]] !== item.correctAnswer && styles.wrongOption
+                                    ]}
+                                    onPress={() => OnHandleOptionSelect(index, 1)}
+                                    disabled={showResults}
+                                >
+                                    <Text>{item.options[1]}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
                                 style={[
                                     styles.option,
                                     seletedOptions[index] === 2 && styles.selectedOption,
@@ -121,44 +161,32 @@ const CourseQuizzScreen = () => {
                             >
                                 <Text>{item.options[3]}</Text>
                             </TouchableOpacity>
-                        </View>
-                    ))
-                }
-                {
-                    showResults && (
+                            </View>
+                        ))
+                    }
+                    { showResults && (
                         <View style={styles.result}>
                             <Text style={styles.resultText}>
                                 Điểm: {scored} trên {questions.length}
                             </Text>
-                            <TouchableOpacity
-                                style={styles.btnTryAgain}
-                                onPress={() => getQuestions()}
-                            >
-                                <Text
-                                    style={styles.btnTryAgainText}
-                                >
-                                    Thử lại
-                                </Text>   
+                            <TouchableOpacity style={styles.btnTryAgain} onPress={onRetry}>
+                                <Text style={styles.btnTryAgainText}>Thử lại</Text>   
                             </TouchableOpacity>
                         </View>
-                    )
-                }
-                <TouchableOpacity
-                    style={[
-                        styles.btnNext,
-                        showResults && styles.btnDisabled
-                    ]}
-                    onPress={() => OnHandleSubmit()}
-                    disabled={showResults}
-                >  
-                    <Text style={styles.btnText}>
-                        Nộp bài
-                    </Text>
-                </TouchableOpacity>
-            </ScrollView>
+                    )}
+                    <TouchableOpacity
+                        style={[styles.btnNext, showResults && styles.btnDisabled]}
+                        onPress={OnHandleSubmit}
+                        disabled={showResults}
+                    >
+                        <Text style={styles.btnText}>Nộp bài</Text>
+                    </TouchableOpacity>
+                </ScrollView>
+            )}
         </>
-    )
+    );
 }
+
 
 const styles = StyleSheet.create({
     options: {
@@ -196,7 +224,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 10,
     },
     btnDisabled: {
-        backgroundColor: '#ccc', // Màu khi đã nộp bài
+        backgroundColor: '#ccc',
     },
     btnText: {
         color: '#fff',

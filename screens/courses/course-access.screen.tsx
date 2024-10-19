@@ -70,7 +70,6 @@ const CourseAccessScreen = () => {
                         });
                 })
         }
-        console.log(data._id);
     }, [courseContentData[activeVideo], activeVideo])
 
     useFocusEffect(
@@ -361,17 +360,25 @@ const CourseAccessScreen = () => {
                                         id: data._id
                                     }
                                 })}
+                                style={{
+                                    height: 30,
+                                    width: 100,
+                                    backgroundColor: '#0085ff',
+                                    borderRadius: 4,
+                                    borderColor: 'transparent',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
                                 >
                                         <Text
                                             style={{
-                                                color: "#525258",
+                                                color: "white",
                                                 fontSize: 16,
-                                                marginTop: 10,
                                                 textAlign: "justify",
                                                 fontFamily: "Nunito_500Medium"
                                             }}
                                         >
-                                            {'>>>'} Tổng kết bài học
+                                            Kiểm tra
                                         </Text>
                             </TouchableOpacity>
                         </View>

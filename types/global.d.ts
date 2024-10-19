@@ -23,6 +23,15 @@ type User = {
     updatedAt: Date;
 }
 
+type OwnerQuizz = {
+    _id: string;
+    userId: string;
+    courseId: string;
+    lessonId: string;
+    scored: number;
+    selected_options: object;
+}
+
 type BannerDataTypes = {
     bannerImageUrl: any;
 }
