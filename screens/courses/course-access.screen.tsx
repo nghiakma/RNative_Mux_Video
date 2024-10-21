@@ -27,6 +27,22 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
     },
+    textBtn: {
+        color: "white",
+        fontSize: 16,
+        textAlign: "justify",
+        fontFamily: "Nunito_500Medium"
+    },
+    btn:{
+        height: 30,
+        minWidth: 100,
+        backgroundColor: '#0085ff',
+        borderRadius: 4,
+        borderColor: 'transparent',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 20
+    }
 });
 
 const CourseAccessScreen = () => {
@@ -189,7 +205,6 @@ const CourseAccessScreen = () => {
                             source={{
                                 uri:
                                     `https://stream.mux.com/${videoData.videoId}.m3u8?token=${token}`,
-                                    //https://stream.mux.com/uLDvBCbsbbZKXHitkzvJ6DbQIrynoQ8j6BPD6OWk1iA.m3u8?token={JWT}
                             }}
                             controls
                             muted
@@ -305,6 +320,31 @@ const CourseAccessScreen = () => {
                                 paddingHorizontal: 0
                             }}
                         >
+                            <View style={{marginVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 10}}>
+                                <TouchableOpacity
+                                    onPress={() => router.push({
+                                        pathname: '/course-quizz',
+                                        params: {
+                                            courseData: courseData,
+                                            activeVideo: activeVideo,
+                                            id: data._id
+                                        }
+                                    })}
+                                    style={styles.btn}
+                                    >
+                                        <Text style={styles.textBtn}>
+                                            Kiểm tra
+                                        </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => console.log('Hoàn thành')}
+                                    style={[styles.btn, {marginLeft: 'auto'}]}
+                                    >
+                                        <Text style={styles.textBtn}>
+                                            Đánh dấu hoàn thành
+                                        </Text>
+                                </TouchableOpacity>
+                            </View>
                             <Text style={{ fontSize: 18, fontFamily: "Raleway_700Bold" }}>
                                 Tham khảo
                             </Text>
@@ -351,36 +391,6 @@ const CourseAccessScreen = () => {
                                 }}
                             >
                             </Text>
-                            <TouchableOpacity
-                                onPress={() => router.push({
-                                    pathname: '/course-quizz',
-                                    params: {
-                                        courseData: courseData,
-                                        activeVideo: activeVideo,
-                                        id: data._id
-                                    }
-                                })}
-                                style={{
-                                    height: 30,
-                                    width: 100,
-                                    backgroundColor: '#0085ff',
-                                    borderRadius: 4,
-                                    borderColor: 'transparent',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}
-                                >
-                                        <Text
-                                            style={{
-                                                color: "white",
-                                                fontSize: 16,
-                                                textAlign: "justify",
-                                                fontFamily: "Nunito_500Medium"
-                                            }}
-                                        >
-                                            Kiểm tra
-                                        </Text>
-                            </TouchableOpacity>
                         </View>
                     )}
                     {activeButton === "Q&A" && (
