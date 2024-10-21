@@ -32,6 +32,16 @@ type OwnerQuizz = {
     selected_options: object;
 }
 
+type Progress = {
+    courseId: string;
+    chapters: Chapter[]
+}
+
+type Chapter = {
+    chapterId: string;
+    isCompleted: boolean;
+}
+
 type BannerDataTypes = {
     bannerImageUrl: any;
 }

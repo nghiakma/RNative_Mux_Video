@@ -1,12 +1,51 @@
 import { FontAwesome, FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import {
     widthPercentageToDP as wp,
     heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 
-export default function CourseCard({ item }: { item: CoursesType }) {
+export default function CourseCard({ item, progresses }: { item: CoursesType, progresses: Progress[] }) {
+    const [showProgress, setShowProgress] = useState(false);
+    const [progressFill, setProgressFill] = useState(0);
+    useEffect(() => {
+        checkPurchasedCourse();
+    }, [progresses])
+    const checkPurchasedCourse = () => {
+        if(progresses && progresses.length > 0){
+            let purchased = progresses.find(progress => progress.courseId === item._id);
+            if(purchased){
+                setShowProgress(true);
+            }
+        }
+    }
+    useEffect(() => {
+        calculateProgressBar();
+    }, [showProgress])
+    const calculateProgressBar = () => {
+        if(showProgress){
+            let progress = progresses.find(progress => progress.courseId === item._id);
+            let chapters: Chapter[] = progress?.chapters.map((chapter: Chapter) => ({
+                chapterId: chapter.chapterId,
+                isCompleted: chapter.isCompleted
+            })) ?? [];
+            if(chapters.length > 0){
+                let totalChapter = chapters.length;
+                let progressBarValue = 0;
+                let isCompleted = 0;
+                chapters.forEach((chapter) => {
+                    if(chapter.isCompleted){
+                        isCompleted++;
+                    }
+                })
+                progressBarValue = (isCompleted / totalChapter) * 100;
+                console.log(progressBarValue);
+                setProgressFill(progressBarValue);
+            }
+        }
+    }
     return (
         <TouchableOpacity
             style={[styles.container, { marginHorizontal: "auto" }]}
@@ -100,6 +139,13 @@ export default function CourseCard({ item }: { item: CoursesType }) {
                         </Text>
                     </View>
                 </View>
+                { showProgress ? (
+                    <View>
+                        <Text>{progressFill}</Text>
+                    </View>
+                ):(
+                    <View></View>
+                )}
             </View>
         </TouchableOpacity>
     );

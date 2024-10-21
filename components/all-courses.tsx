@@ -4,24 +4,51 @@ import { Raleway_600SemiBold, Raleway_700Bold } from "@expo-google-fonts/raleway
 import axios from "axios";
 import { useFonts } from "expo-font";
 import { router } from "expo-router";
-import { useEffect, useRef, useState } from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 import CourseCard from "./cards/course.card";
 import { Zocial } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AllCourses = () => {
     const [courses, setCourses] = useState<CoursesType[]>([]);
-    const [loading, setLoading] = useState(true);
-    const flatListRef = useRef(null);
-
+    const [progresses, setProgresses] = useState<Progress[]>([]);
     useEffect(() => {
         loadAllCourses();
+        loadProgressOfUser();
     }, [])
 
     const loadAllCourses = async () => {
         try {
             const response = await axios.get(`${URL_SERVER}/get-courses`);
             setCourses([...response.data.courses]);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const loadProgressOfUser = async () => {
+        try {
+            const accessToken = await AsyncStorage.getItem('access_token');
+            const refreshToken = await AsyncStorage.getItem('refresh_token');
+            const response = await axios.get(`${URL_SERVER}/user/progress`, {
+                headers: {
+                    'access-token': accessToken,
+                    'refresh-token': refreshToken
+                }
+            });
+            let _processes: Progress[] = [];
+            if(response.data.response && response.data.response.progress){
+                let _ = response.data.response.progress;
+                _processes = _.map((progress: Progress) => ({
+                    courseId: progress.courseId,
+                    chapters: progress.chapters.map((chapter: Chapter) => ({
+                        chapterId: chapter.chapterId,
+                        isCompleted: chapter.isCompleted
+                    }))
+                }));
+            }
+            setProgresses(_processes);
         } catch (error) {
             console.log(error);
         }
@@ -72,7 +99,7 @@ const AllCourses = () => {
             {courses.length > 0 && (
                 courses.map((item: any, index: number) => (
                     <View key={index}>
-                        <CourseCard item={item} key={item._id} />
+                        <CourseCard item={item} key={item._id} progresses={progresses}/>
                     </View>
                 ))
             )}
