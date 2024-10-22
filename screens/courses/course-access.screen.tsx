@@ -3,7 +3,7 @@ import ReviewCard from "@/components/cards/review.card";
 import Loader from "@/components/loader";
 import useUser from "@/hooks/useUser";
 import { URL_SERVER } from "@/utils/url";
-import { FontAwesome } from "@expo/vector-icons";
+import { Feather, FontAwesome } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
@@ -60,11 +60,17 @@ const CourseAccessScreen = () => {
     const [review, setReview] = useState("");
     const [reviewAvailable, setReviewAvailable] = useState(false);
     const [token, setToken] = useState('');
-
     const [videoData, setVideoData] = useState({
         id: "",
         videoId: ""
     });
+    
+    const [progresses, setProgresses] = useState<Progress[]>([]);
+    const [courseProgress, setCourseProgress] = useState<Progress>();
+    const [lessonInfo, setLessonInfo] = useState<Chapter>({
+        chapterId: "",
+        isCompleted: false
+    })
 
     useEffect(() => {
         if (courseContentData[activeVideo]) {
@@ -85,12 +91,22 @@ const CourseAccessScreen = () => {
                             setToken(token);
                         });
                 })
+            let _lessonInfo = courseProgress?.chapters.find(chapter => chapter.chapterId === courseContentData[activeVideo]._id);
+            setLessonInfo(_lessonInfo as Chapter);
         }
     }, [courseContentData[activeVideo], activeVideo])
+
+    useEffect(() => {
+        if(progresses.length > 0){
+            let _data = progresses.find(progress => progress.courseId === data._id);
+            setCourseProgress(_data);
+        }
+    }, [progresses])
 
     useFocusEffect(
         useCallback(() => {
             const subscription = () => {
+                loadProgressOfUser();
                 FetchCourseContent();
                 const isReviewAvailable = courseReviews.find(
                     (i: any) => i.user._id === user?._id
@@ -102,6 +118,33 @@ const CourseAccessScreen = () => {
             subscription();
         }, [])
     )
+
+    const loadProgressOfUser = async () => {
+        try {
+            const accessToken = await AsyncStorage.getItem('access_token');
+            const refreshToken = await AsyncStorage.getItem('refresh_token');
+            const response = await axios.get(`${URL_SERVER}/user/progress`, {
+                headers: {
+                    'access-token': accessToken,
+                    'refresh-token': refreshToken
+                }
+            });
+            let _processes: Progress[] = [];
+            if(response.data.response && response.data.response.progress){
+                let _ = response.data.response.progress;
+                _processes = _.map((progress: Progress) => ({
+                    courseId: progress.courseId,
+                    chapters: progress.chapters.map((chapter: Chapter) => ({
+                        chapterId: chapter.chapterId,
+                        isCompleted: chapter.isCompleted
+                    }))
+                }));
+            }
+            setProgresses(_processes);
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     const FetchCourseContent = async () => {
         try {
@@ -170,6 +213,27 @@ const CourseAccessScreen = () => {
             }
             currentCourseReview = [_data, ...currentCourseReview];
             setCourseReviews(currentCourseReview);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const OnMarkAsCompleted = async () => {
+        try {
+            const accessToken = await AsyncStorage.getItem('access_token');
+            const refreshToken = await AsyncStorage.getItem('refresh_token');
+            const chapterId = lessonInfo.chapterId;
+            const courseId = courseProgress?.courseId;
+            await axios.put(`${URL_SERVER}/user/mark-chapter?courseId=${courseId}&chapterId=${chapterId}`, {}, {
+                headers: {
+                    'access-token': accessToken,
+                    'refresh-token': refreshToken
+                }
+            });
+            setLessonInfo({
+                chapterId: chapterId,
+                isCompleted: true
+            });
         } catch (error) {
             console.log(error);
         }
@@ -335,14 +399,25 @@ const CourseAccessScreen = () => {
                                             Kiểm tra
                                         </Text>
                                 </TouchableOpacity>
+                                { lessonInfo.isCompleted ? (
+                                    <TouchableOpacity
+                                        style={[styles.btn, {marginLeft: 'auto', flexDirection: 'row', flexWrap: 'nowrap', gap: 4, alignItems: 'center', backgroundColor: '#237867'}]}
+                                    >
+                                        <Text style={styles.textBtn}>
+                                            Đã hoàn thành
+                                        </Text>
+                                        <Feather name="check-circle" size={18} color="white" />
+                                    </TouchableOpacity>
+                                ):(
                                 <TouchableOpacity
-                                    onPress={() => console.log('Hoàn thành')}
-                                    style={[styles.btn, {marginLeft: 'auto'}]}
+                                    onPress={() => OnMarkAsCompleted()}
+                                    style={[styles.btn, {marginLeft: 'auto', flexDirection: 'row', flexWrap: 'nowrap', gap: 4, alignItems: 'center'}]}
                                     >
                                         <Text style={styles.textBtn}>
                                             Đánh dấu hoàn thành
                                         </Text>
                                 </TouchableOpacity>
+                                )}
                             </View>
                             <Text style={{ fontSize: 18, fontFamily: "Raleway_700Bold" }}>
                                 Tham khảo

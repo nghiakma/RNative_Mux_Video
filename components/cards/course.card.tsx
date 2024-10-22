@@ -124,7 +124,7 @@ export default function CourseCard({ item, progresses }: { item: CoursesType, pr
                                 color: getProgressColor()
                             }}
                         >
-                            Hoàn thành {progressFill}%
+                            Hoàn thành {Math.round(progressFill)}%
                         </Text>
                     </View>
                 ):(

@@ -39,7 +39,7 @@ const TabsLayout = () => {
                         }
                     }}
                 >
-                    <Tabs.Screen name="index" />
+                    <Tabs.Screen name="index"/>
                     <Tabs.Screen name="search/index" />
                     <Tabs.Screen name="courses/index" />
                     <Tabs.Screen name="profile/index" />
