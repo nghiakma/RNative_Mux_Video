@@ -3,6 +3,7 @@ import SearchInput from "@/components/search.input";
 import { URL_SERVER } from "@/utils/url";
 import { Nunito_700Bold } from "@expo-google-fonts/nunito";
 import { AntDesign, Zocial } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useFonts } from "expo-font";
 import { router, useFocusEffect } from "expo-router";
@@ -51,10 +52,12 @@ const SearchScreen = () => {
     const [value, setValue] = useState("");
     const [courses, setCourses] = useState([]);
     const [filteredCourses, setFilteredCourses] = useState([]);
+    const [progresses, setProgresses] = useState<Progress[]>([]);
 
     useFocusEffect(
         useCallback(() => {
             loadAllCourses();
+            loadProgressOfUser();
         }, [])
     );
 
@@ -72,6 +75,33 @@ const SearchScreen = () => {
             const response = await axios.get(`${URL_SERVER}/get-courses`);
             setCourses(response.data.courses);
             setFilteredCourses(response.data.courses);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const loadProgressOfUser = async () => {
+        try {
+            const accessToken = await AsyncStorage.getItem('access_token');
+            const refreshToken = await AsyncStorage.getItem('refresh_token');
+            const response = await axios.get(`${URL_SERVER}/user/progress`, {
+                headers: {
+                    'access-token': accessToken,
+                    'refresh-token': refreshToken
+                }
+            });
+            let _processes: Progress[] = [];
+            if(response.data.response && response.data.response.progress){
+                let _ = response.data.response.progress;
+                _processes = _.map((progress: Progress) => ({
+                    courseId: progress.courseId,
+                    chapters: progress.chapters.map((chapter: Chapter) => ({
+                        chapterId: chapter.chapterId,
+                        isCompleted: chapter.isCompleted
+                    }))
+                }));
+            }
+            setProgresses(_processes);
         } catch (error) {
             console.log(error);
         }
@@ -106,7 +136,7 @@ const SearchScreen = () => {
             <View>
                 {filteredCourses.length > 0 && filteredCourses.map((item: any, index: number) => (
                     <View key={`${index}-c`}>
-                        <CourseCard item={item} />
+                        <CourseCard item={item} progresses={progresses} />
                     </View>
                 ))}
             </View>

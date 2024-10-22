@@ -103,7 +103,6 @@ const CourseAccessScreen = () => {
         }, [])
     )
 
-
     const FetchCourseContent = async () => {
         try {
             const accessToken = await AsyncStorage.getItem("access_token");

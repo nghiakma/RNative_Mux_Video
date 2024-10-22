@@ -6,6 +6,7 @@ import {
     widthPercentageToDP as wp,
     heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
+import * as Progress from "react-native-progress";
 
 export default function CourseCard({ item, progresses }: { item: CoursesType, progresses: Progress[] }) {
     const [showProgress, setShowProgress] = useState(false);
@@ -24,6 +25,7 @@ export default function CourseCard({ item, progresses }: { item: CoursesType, pr
     useEffect(() => {
         calculateProgressBar();
     }, [showProgress])
+
     const calculateProgressBar = () => {
         if(showProgress){
             let progress = progresses.find(progress => progress.courseId === item._id);
@@ -46,6 +48,12 @@ export default function CourseCard({ item, progresses }: { item: CoursesType, pr
             }
         }
     }
+
+    const getProgressColor = () => {
+        let progress: number = progressFill / 100;
+        return progress < 0.5 ? '#1c86b7' : '#237867';
+    }
+
     return (
         <TouchableOpacity
             style={[styles.container, { marginHorizontal: "auto" }]}
@@ -104,47 +112,57 @@ export default function CourseCard({ item, progresses }: { item: CoursesType, pr
                     </View>
                     <Text>{item.purchased} <FontAwesome5 name="user" size={14} color="black" /></Text>
                 </View>
-                <View
+                { showProgress ? (
+                    <View style={{gap: 4, paddingTop: 10}}>
+                        <Progress.Bar 
+                            progress={progressFill / 100}
+                            width={wp(80)}
+                            color={getProgressColor()}
+                        />
+                        <Text 
+                            style={{
+                                color: getProgressColor()
+                            }}
+                        >
+                            Hoàn thành {progressFill}%
+                        </Text>
+                    </View>
+                ):(
+                    <View
                     style={{
                         flexDirection: "row",
                         alignItems: "center",
                         justifyContent: "space-between",
                         paddingBottom: 5,
                     }}
-                >
-                    <View style={{ flexDirection: "row" }}>
-                        <Text style={{ paddingTop: 10, fontSize: 18, fontWeight: "600" }}>
-                            {item?.price}đ
-                        </Text>
-                        <Text
+                    >
+                        <View style={{ flexDirection: "row" }}>
+                            <Text style={{ paddingTop: 10, fontSize: 18, fontWeight: "600" }}>
+                                {item?.price}đ
+                            </Text>
+                            <Text
+                                style={{
+                                    paddingLeft: 5,
+                                    textDecorationLine: "line-through",
+                                    fontSize: 16,
+                                    fontWeight: "400",
+                                }}
+                            >
+                                {item?.estimatedPrice}đ
+                            </Text>
+                        </View>
+                        <View
                             style={{
-                                paddingLeft: 5,
-                                textDecorationLine: "line-through",
-                                fontSize: 16,
-                                fontWeight: "400",
+                                flexDirection: "row",
+                                alignItems: "center",
                             }}
                         >
-                            {item?.estimatedPrice}đ
-                        </Text>
+                            <Ionicons name="list-outline" size={20} color={"#8A8A8A"} />
+                            <Text style={{ marginLeft: 5 }}>
+                                {item.courseData.length} Bài học
+                            </Text>
+                        </View>
                     </View>
-                    <View
-                        style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                        }}
-                    >
-                        <Ionicons name="list-outline" size={20} color={"#8A8A8A"} />
-                        <Text style={{ marginLeft: 5 }}>
-                            {item.courseData.length} Bài học
-                        </Text>
-                    </View>
-                </View>
-                { showProgress ? (
-                    <View>
-                        <Text>{progressFill}</Text>
-                    </View>
-                ):(
-                    <View></View>
                 )}
             </View>
         </TouchableOpacity>

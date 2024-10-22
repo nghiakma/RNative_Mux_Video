@@ -4,6 +4,7 @@ import { URL_SERVER } from "@/utils/url";
 import { Nunito_400Regular, Nunito_700Bold, Nunito_500Medium, Nunito_600SemiBold } from "@expo-google-fonts/nunito";
 import { Raleway_600SemiBold, Raleway_700Bold } from "@expo-google-fonts/raleway";
 import { Zocial } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useFonts } from "expo-font";
 import { useEffect, useState } from "react";
@@ -16,10 +17,12 @@ const CoursesScreen = () => {
     const [loading, setLoading] = useState(true);
     const [categories, setCategories] = useState([]);
     const [activeCategory, setActiveCategory] = useState("All");
-
+    const [progresses, setProgresses] = useState<Progress[]>([]);
+    
     useEffect(() => {
         FetchCategories();
         FetchCourses();
+        loadProgressOfUser();
     }, []);
 
     const FetchCategories = async () => {
@@ -39,6 +42,33 @@ const CoursesScreen = () => {
             setLoading(false);
         } catch (error) {
             setLoading(false);
+            console.log(error);
+        }
+    }
+
+    const loadProgressOfUser = async () => {
+        try {
+            const accessToken = await AsyncStorage.getItem('access_token');
+            const refreshToken = await AsyncStorage.getItem('refresh_token');
+            const response = await axios.get(`${URL_SERVER}/user/progress`, {
+                headers: {
+                    'access-token': accessToken,
+                    'refresh-token': refreshToken
+                }
+            });
+            let _processes: Progress[] = [];
+            if(response.data.response && response.data.response.progress){
+                let _ = response.data.response.progress;
+                _processes = _.map((progress: Progress) => ({
+                    courseId: progress.courseId,
+                    chapters: progress.chapters.map((chapter: Chapter) => ({
+                        chapterId: chapter.chapterId,
+                        isCompleted: chapter.isCompleted
+                    }))
+                }));
+            }
+            setProgresses(_processes);
+        } catch (error) {
             console.log(error);
         }
     }
@@ -112,7 +142,7 @@ const CoursesScreen = () => {
                     {courses.length > 0 && (
                         <ScrollView style={{ marginHorizontal: 15, gap: 12, flex: 1 }}>
                             {courses?.map((item: CoursesType, index: number) => (
-                                <CourseCard item={item} key={index} />
+                                <CourseCard item={item} key={index} progresses={progresses}/>
                             ))}
                         </ScrollView>
                     )}
