@@ -7,6 +7,8 @@ import { LogBox, View } from 'react-native';
 import OnBoarding from './(routes)/onboard';
 import { Stack } from 'expo-router';
 import { ToastProvider } from 'react-native-toast-notifications';
+import {Provider} from "react-redux";
+import store from '@/utils/store/store';
 
 export {
   ErrorBoundary,
@@ -47,59 +49,61 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   return (
-    <ToastProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name='(routes)/welcome-intro/index' />
-        <Stack.Screen
-          name='(routes)/course-details/index'
-          options={{
-            headerShown: true,
-            title: "Chi tiết khóa học",
-            headerBackTitle: "Trở về"
-          }}
-        />
-        <Stack.Screen
-          name='(routes)/course-access/index'
-          options={{
-            headerShown: true,
-            title: "Bài giảng khóa học",
-            headerBackTitle: "Trở về"
-          }}
-        />
-        <Stack.Screen
-          name="(routes)/enrolled-courses/index"
-          options={{
-            headerShown: true,
-            title: "Khóa học đã tham gia",
-            headerBackTitle: "Trở về"
-          }}
-        />
-        <Stack.Screen
-          name="(routes)/course-quizz/index"
-          options={{
-            headerShown: true,
-            title: "Bài tập cuối video",
-            headerBackTitle: "Trở về"
-          }}
-        />
-        <Stack.Screen
-          name="(routes)/cart/index"
-          options={{
-            headerShown: true,
-            title: "Khóa học đã chọn",
-            headerBackTitle: "Trở về"
-          }}
-        />
-        <Stack.Screen
-          name='(routes)/profile-details/index'
-          options={{
-            headerShown: true,
-            title: "Chi tiết hồ sơ cá nhân",
-            headerBackTitle: "Trở về"
-          }}
-        />
-      </Stack>
-    </ToastProvider>
+    <Provider store={store}>
+      <ToastProvider>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name='(routes)/welcome-intro/index' />
+          <Stack.Screen
+            name='(routes)/course-details/index'
+            options={{
+              headerShown: true,
+              title: "Chi tiết khóa học",
+              headerBackTitle: "Trở về"
+            }}
+          />
+          <Stack.Screen
+            name='(routes)/course-access/index'
+            options={{
+              headerShown: true,
+              title: "Bài giảng khóa học",
+              headerBackTitle: "Trở về"
+            }}
+          />
+          <Stack.Screen
+            name="(routes)/enrolled-courses/index"
+            options={{
+              headerShown: true,
+              title: "Khóa học đã tham gia",
+              headerBackTitle: "Trở về"
+            }}
+          />
+          <Stack.Screen
+            name="(routes)/course-quizz/index"
+            options={{
+              headerShown: true,
+              title: "Bài tập cuối video",
+              headerBackTitle: "Trở về"
+            }}
+          />
+          <Stack.Screen
+            name="(routes)/cart/index"
+            options={{
+              headerShown: true,
+              title: "Khóa học đã chọn",
+              headerBackTitle: "Trở về"
+            }}
+          />
+          <Stack.Screen
+            name='(routes)/profile-details/index'
+            options={{
+              headerShown: true,
+              title: "Chi tiết hồ sơ cá nhân",
+              headerBackTitle: "Trở về"
+            }}
+          />
+        </Stack>
+      </ToastProvider>
+    </Provider>
   );
 }

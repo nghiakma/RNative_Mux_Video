@@ -142,7 +142,7 @@ const CoursesScreen = () => {
                     {courses.length > 0 && (
                         <ScrollView style={{ marginHorizontal: 15, gap: 12, flex: 1 }}>
                             {courses?.map((item: CoursesType, index: number) => (
-                                <CourseCard item={item} key={index} progresses={progresses}/>
+                                <CourseCard item={item} key={index}/>
                             ))}
                         </ScrollView>
                     )}

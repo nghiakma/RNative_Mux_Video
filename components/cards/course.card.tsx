@@ -7,46 +7,30 @@ import {
     heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import * as Progress from "react-native-progress";
+import { useSelector } from "react-redux";
 
-export default function CourseCard({ item, progresses }: { item: CoursesType, progresses: Progress[] }) {
+export default function CourseCard({ item }: { item: CoursesType }) {
     const [showProgress, setShowProgress] = useState(false);
     const [progressFill, setProgressFill] = useState(0);
+    const progresses = useSelector((state: any) => state.user.progress);
+
     useEffect(() => {
         checkPurchasedCourse();
     }, [progresses])
+
     const checkPurchasedCourse = () => {
-        if(progresses && progresses.length > 0){
-            let purchased = progresses.find(progress => progress.courseId === item._id);
-            if(purchased){
-                setShowProgress(true);
-            }
+        let purchased = progresses.length > 0 && progresses.find((pro: any) => pro.courseId === item._id);
+        
+        if(purchased){
+            setShowProgress(true);
+            calculateProgressBar();
         }
     }
-    useEffect(() => {
-        calculateProgressBar();
-    }, [showProgress])
 
     const calculateProgressBar = () => {
-        if(showProgress){
-            let progress = progresses.find(progress => progress.courseId === item._id);
-            let chapters: Chapter[] = progress?.chapters.map((chapter: Chapter) => ({
-                chapterId: chapter.chapterId,
-                isCompleted: chapter.isCompleted
-            })) ?? [];
-            if(chapters.length > 0){
-                let totalChapter = chapters.length;
-                let progressBarValue = 0;
-                let isCompleted = 0;
-                chapters.forEach((chapter) => {
-                    if(chapter.isCompleted){
-                        isCompleted++;
-                    }
-                })
-                progressBarValue = (isCompleted / totalChapter) * 100;
-                console.log(progressBarValue);
-                setProgressFill(progressBarValue);
-            }
-        }
+        let progress = progresses.find((pro: any) => pro.courseId === item._id);
+        let progressBarValue = progress.progress * 100;
+        setProgressFill(progressBarValue);
     }
 
     const getProgressColor = () => {

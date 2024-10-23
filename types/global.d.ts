@@ -46,6 +46,11 @@ type BannerDataTypes = {
     bannerImageUrl: any;
 }
 
+type Action = {
+    type: string,
+    payload?: any
+}
+
 declare module "*.png";
 
 declare module 'react-native-animated-loader'

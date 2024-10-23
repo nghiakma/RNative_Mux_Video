@@ -14,6 +14,9 @@ import { Toast } from "react-native-toast-notifications";
 import app from "../../app.json";
 import Video from 'react-native-video';
 import muxReactNativeVideo from '@mux/mux-data-react-native-video';
+import { useDispatch, useSelector } from "react-redux";
+import * as userActions from '../../utils/store/actions';
+
 const MuxVideo = muxReactNativeVideo(Video);
 
 
@@ -71,6 +74,8 @@ const CourseAccessScreen = () => {
         chapterId: "",
         isCompleted: false
     })
+    const dispatch = useDispatch();
+    const reduxProgresses = useSelector((state: any) => state.user.progress);
 
     useEffect(() => {
         if (courseContentData[activeVideo]) {
@@ -230,13 +235,41 @@ const CourseAccessScreen = () => {
                     'refresh-token': refreshToken
                 }
             });
+            let newChapters = courseProgress?.chapters.filter(chapter => chapter.chapterId !== chapterId);
+            newChapters?.push({
+                chapterId: chapterId, 
+                isCompleted: true
+            } as Chapter);
+            let newCourseProgress: Progress = {
+                courseId: data._id,
+                chapters: newChapters!
+            }
+            setCourseProgress(newCourseProgress);
             setLessonInfo({
                 chapterId: chapterId,
                 isCompleted: true
             });
+            let newProgress = calculateProgressBar(newChapters ?? []);
+            let payload = {
+                courseId: data._id,
+                progress: newProgress
+            }
+            console.log(payload);
+            dispatch(userActions.pushProgressOfUser(payload));
         } catch (error) {
             console.log(error);
         }
+    }
+
+    const calculateProgressBar = (chapters: Chapter[]) => {
+        let isCompleted = 0;
+        chapters.forEach(chapter => {
+            if(chapter.isCompleted){
+                isCompleted++;
+            }
+        })
+        let progress = isCompleted / chapters.length;
+        return progress;
     }
 
     const RenderStars = () => {
@@ -464,6 +497,9 @@ const CourseAccessScreen = () => {
                                     fontFamily: "Nunito_500Medium"
                                 }}
                             >
+                            </Text>
+                            <Text>
+                                {reduxProgresses[1].progress}
                             </Text>
                         </View>
                     )}

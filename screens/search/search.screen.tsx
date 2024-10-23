@@ -136,7 +136,7 @@ const SearchScreen = () => {
             <View>
                 {filteredCourses.length > 0 && filteredCourses.map((item: any, index: number) => (
                     <View key={`${index}-c`}>
-                        <CourseCard item={item} progresses={progresses} />
+                        <CourseCard item={item} />
                     </View>
                 ))}
             </View>

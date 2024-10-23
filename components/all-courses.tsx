@@ -9,11 +9,26 @@ import { Text, TouchableOpacity, View } from "react-native";
 import CourseCard from "./cards/course.card";
 import { Zocial } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+import * as userActions from "../utils/store/actions/user.actions";
 
 const AllCourses = () => {
+    const navigation = useNavigation();
     const [courses, setCourses] = useState<CoursesType[]>([]);
     const [progresses, setProgresses] = useState<Progress[]>([]);
+    const dispatch = useDispatch();
+    // const user = useSelector((state: any) => state.user);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+        loadAllCourses();
+        loadProgressOfUser();
+    });
+
+    return unsubscribe; // Hủy đăng ký khi component unmount
+  }, [navigation]);
+    
     useEffect(() => {
         loadAllCourses();
         loadProgressOfUser();
@@ -45,18 +60,33 @@ const AllCourses = () => {
                     'refresh-token': refreshToken
                 }
             });
-            let _processes: Progress[] = [];
+            let _progresses: Progress[] = [];
             if(response.data.response && response.data.response.progress){
                 let _ = response.data.response.progress;
-                _processes = _.map((progress: Progress) => ({
+                _progresses = _.map((progress: Progress) => ({
                     courseId: progress.courseId,
                     chapters: progress.chapters.map((chapter: Chapter) => ({
                         chapterId: chapter.chapterId,
                         isCompleted: chapter.isCompleted
                     }))
                 }));
+                let payload: { courseId: string; progress: number; }[] = [];
+                _progresses.forEach(item => {
+                    let isCompleted = 0;
+                    item.chapters.forEach(chapter => {
+                        if(chapter.isCompleted === true){
+                            isCompleted++;
+                        }
+                    })
+                    let progress = (isCompleted / item.chapters.length);
+                    payload.push({
+                        courseId: item.courseId,
+                        progress: progress
+                    });
+                })
+                dispatch(userActions.saveProgressOfUser(payload))
             }
-            setProgresses(_processes);
+            setProgresses(_progresses);
         } catch (error) {
             console.log(error);
         }
@@ -107,7 +137,7 @@ const AllCourses = () => {
             {courses.length > 0 && (
                 courses.map((item: any, index: number) => (
                     <View key={index}>
-                        <CourseCard item={item} key={item._id} progresses={progresses}/>
+                        <CourseCard item={item} key={item._id}/>
                     </View>
                 ))
             )}
@@ -119,6 +149,9 @@ const AllCourses = () => {
                     <Text style={{ textAlign: 'center' }}>Không tồn tại dữ liệu</Text>
                 </View>
             )}
+            {/* <View>
+                <Text>{user.progress.toString()}</Text>
+            </View> */}
         </View>
     )
 }

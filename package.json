@@ -22,6 +22,7 @@
     "@mux/mux-data-react-native-video": "^0.15.3",
     "@react-native-async-storage/async-storage": "^2.0.0",
     "@react-navigation/native": "^6.0.2",
+    "@reduxjs/toolkit": "^2.3.0",
     "@stripe/stripe-react-native": "^0.38.6",
     "aws-amplify": "^6.6.4",
     "axios": "^1.7.7",
@@ -55,6 +56,9 @@
     "react-native-video": "^6.6.2",
     "react-native-web": "~0.19.10",
     "react-native-webview": "^13.12.2",
+    "react-redux": "^9.1.2",
+    "redux": "^5.0.1",
+    "redux-thunk": "^3.1.0",
     "vdocipher-rn-bridge": "^1.20.8"
   },
   "devDependencies": {
