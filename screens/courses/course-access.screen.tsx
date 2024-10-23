@@ -75,7 +75,6 @@ const CourseAccessScreen = () => {
         isCompleted: false
     })
     const dispatch = useDispatch();
-    const reduxProgresses = useSelector((state: any) => state.user.progress);
 
     useEffect(() => {
         if (courseContentData[activeVideo]) {
@@ -254,7 +253,6 @@ const CourseAccessScreen = () => {
                 courseId: data._id,
                 progress: newProgress
             }
-            console.log(payload);
             dispatch(userActions.pushProgressOfUser(payload));
         } catch (error) {
             console.log(error);
@@ -497,9 +495,6 @@ const CourseAccessScreen = () => {
                                     fontFamily: "Nunito_500Medium"
                                 }}
                             >
-                            </Text>
-                            <Text>
-                                {reduxProgresses[1].progress}
                             </Text>
                         </View>
                     )}

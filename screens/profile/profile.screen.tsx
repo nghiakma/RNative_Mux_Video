@@ -13,10 +13,13 @@ import { URL_SERVER } from "@/utils/url";
 import Loader from "@/components/loader";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign, FontAwesome, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useDispatch } from "react-redux";
+import * as userActions from "../../utils/store/actions";
 const ProfileScreen = () => {
     const { user, loading, setRefetch } = useUser();
     const [image, setImage] = useState<any>(null);
     const [loader, setLoader] = useState(false);
+    const dispatch = useDispatch();
 
     let [fontsLoaded, fontsError] = useFonts({
         Raleway_600SemiBold,
@@ -35,6 +38,7 @@ const ProfileScreen = () => {
         await AsyncStorage.removeItem("refresh_token");
         await AsyncStorage.removeItem("cart");
         await AsyncStorage.removeItem("paymented");
+        dispatch(userActions.saveProgressOfUser([]));
         router.push("/(routes)/sign-in");
     }
 

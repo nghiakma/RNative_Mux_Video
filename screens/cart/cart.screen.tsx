@@ -7,13 +7,16 @@ import { useEffect, useState } from "react";
 import { FlatList, Image, RefreshControl, Text, TouchableOpacity, View } from "react-native"
 import AccountConfirmation from "@/assets/images/account_confirmation.png";
 import EmptyCart from "@/assets/images/empty_cart.png";
-import { Entypo, FontAwesome } from "@expo/vector-icons";
 import { Toast } from "react-native-toast-notifications";
+import { useDispatch } from "react-redux";
+import * as userActions from "../../utils/store/actions"; 
+
 const CartScreen = () => {
     const [cartItems, setCartItems] = useState<CoursesType[]>([]);
     const [refreshing, setRefreshing] = useState(false);
     const [orderSuccess, setOrderSuccess] = useState(false);
     const { initPaymentSheet, presentPaymentSheet } = useStripe();
+    const dispatch = useDispatch();
 
     const FetchCartUser = async () => {
         try {
@@ -132,6 +135,12 @@ const CartScreen = () => {
                         'refresh-token': refreshToken
                     }
                 })
+
+                let payload = {
+                    courseId: course._id,
+                    progress: 0
+                }
+                dispatch(userActions.pushProgressOfUser(payload));
             })
             setOrderSuccess(true);
             currCart = [];

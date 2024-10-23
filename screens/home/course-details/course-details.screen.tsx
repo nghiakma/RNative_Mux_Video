@@ -94,25 +94,6 @@ const CourseDetailsScreen = () => {
         }, [])
     )
 
-    // useEffect(() => {
-    //     console.log("ABC");
-    //         axios
-    //             .get("http://localhost:8000/api/v1/getMuxVideoOTP", {
-    //                 params: {
-    //                     videoId: videoData.videoId
-    //                 }
-    //             })
-    //             .then((res) => {
-    //                 const token = res.data.token;
-    //                 console.log(token);
-    //                 console.log(videoData.videoId);
-    //                 setToken(token);
-    //             })
-    //             .catch(error => {
-    //                 console.log(error);
-    //             });
-    // }, [videoData.videoId]);
-
     const OnHandleAddToCart = async () => {
         try {
             const existingCartData = await AsyncStorage.getItem("cart");
