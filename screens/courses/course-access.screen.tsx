@@ -14,7 +14,7 @@ import { Toast } from "react-native-toast-notifications";
 import app from "../../app.json";
 import Video from 'react-native-video';
 import muxReactNativeVideo from '@mux/mux-data-react-native-video';
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import * as userActions from '../../utils/store/actions';
 
 const MuxVideo = muxReactNativeVideo(Video);
@@ -75,7 +75,7 @@ const CourseAccessScreen = () => {
         isCompleted: false
     })
     const dispatch = useDispatch();
-
+    
     useEffect(() => {
         if (courseContentData[activeVideo]) {
             axios.get(`${URL_SERVER}/getMuxVideoOTP?videoId=${courseContentData[activeVideo].videoUrl}`)
@@ -251,7 +251,9 @@ const CourseAccessScreen = () => {
             let newProgress = calculateProgressBar(newChapters ?? []);
             let payload = {
                 courseId: data._id,
-                progress: newProgress
+                progress: newProgress,
+                name: data.name,
+                total: courseProgress?.chapters.length ?? 0
             }
             dispatch(userActions.pushProgressOfUser(payload));
         } catch (error) {

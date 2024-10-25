@@ -138,7 +138,9 @@ const CartScreen = () => {
 
                 let payload = {
                     courseId: course._id,
-                    progress: 0
+                    progress: 0,
+                    name: course.name,
+                    total: course.courseData.length,
                 }
                 dispatch(userActions.pushProgressOfUser(payload));
             })

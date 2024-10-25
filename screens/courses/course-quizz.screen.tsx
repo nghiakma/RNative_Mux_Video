@@ -152,7 +152,7 @@ const CourseQuizzScreen = () => {
         setModalVisible(false);
         // console.log(fillScreen);
         // console.log((scored / questions.length) * MAX_POINTS_SCREEN);
-        // setFillScreen((scored / questions.length) * MAX_POINTS_SCREEN);
+        // setFillScreen((scored / questions.length)* MAX_POINTS_SCREEN);
     }
 
     const renderResultModal = () => {

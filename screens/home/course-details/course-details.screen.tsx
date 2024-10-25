@@ -27,7 +27,7 @@ const CourseDetailsScreen = () => {
     const { user, loading } = useUser();
     const [isExpanded, setIsExpanded] = useState(false);
     const { item } = useLocalSearchParams();
-    const courseData: CoursesType = JSON.parse(item as string);
+    const courseData: CoursesType = JSON.parse(item as string); // truyền ngu vl 
     const [courseInfo, setCourseInfo] = useState<CoursesType>();
     const [checkPurchased, setCheckPurchased] = useState(false);
     const [videoData, SetVideoData] = useState({

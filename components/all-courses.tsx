@@ -70,7 +70,7 @@ const AllCourses = () => {
                         isCompleted: chapter.isCompleted
                     }))
                 }));
-                let payload: { courseId: string; progress: number; }[] = [];
+                let payload: { courseId: string; progress: number; name: string, total: number}[] = [];
                 _progresses.forEach(item => {
                     let isCompleted = 0;
                     item.chapters.forEach(chapter => {
@@ -79,9 +79,12 @@ const AllCourses = () => {
                         }
                     })
                     let progress = (isCompleted / item.chapters.length);
+                    let course = courses.find(course => course._id === item.courseId);
                     payload.push({
                         courseId: item.courseId,
-                        progress: progress
+                        progress: progress,
+                        name: course?.name ?? '',
+                        total: item.chapters.length
                     });
                 })
                 dispatch(userActions.saveProgressOfUser(payload))
@@ -149,9 +152,6 @@ const AllCourses = () => {
                     <Text style={{ textAlign: 'center' }}>Không tồn tại dữ liệu</Text>
                 </View>
             )}
-            {/* <View>
-                <Text>{user.progress.toString()}</Text>
-            </View> */}
         </View>
     )
 }

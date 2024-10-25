@@ -3,12 +3,12 @@ export const UserActions = Object.freeze({
     PUSH_PROGRESS: 'PUSH_PROGRESS'
 })
 
-export const saveProgressOfUser = (payload: { courseId: string; progress: number; }[]) => ({
+export const saveProgressOfUser = (payload: { courseId: string; progress: number; name: string, total: number }[]) => ({
     type: UserActions.SAVE_PROGRESS,
     payload: payload
 })
 
-export const pushProgressOfUser = (payload: { courseId: string, progress: number }) => ({
+export const pushProgressOfUser = (payload: { courseId: string, progress: number, name: string, total: number }) => ({
     type: UserActions.PUSH_PROGRESS,
     payload: payload
 })
