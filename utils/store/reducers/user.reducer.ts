@@ -1,7 +1,8 @@
 import { UserActions } from "../actions/user.actions"
 
 const initState = {
-    progress: []
+    progress: [],
+    paymented: []
 }
 
 export const UserReducer = (state = initState, actions: Action) => {
@@ -18,6 +19,22 @@ export const UserReducer = (state = initState, actions: Action) => {
             return {
                 ...state,
                 progress: [...newProgress]
+            }
+        }
+        case UserActions.SAVE_PAYMENTED: {
+            let _paymented: any = state.paymented;
+            let _payload: { _id: string } = { _id: actions.payload._id };
+            _paymented = [...state.paymented, _payload];
+            console.log(_paymented);
+            return {
+                ...state,
+                paymented: [..._paymented]
+            }
+        }
+        case UserActions.RESET_PAYMENTED: {
+            return {
+                ...state,
+                paymented: []
             }
         }
         default:
