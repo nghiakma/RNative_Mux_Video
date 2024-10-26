@@ -96,7 +96,11 @@ const CourseAccessScreen = () => {
                         });
                 })
             let _lessonInfo = courseProgress?.chapters.find(chapter => chapter.chapterId === courseContentData[activeVideo]._id);
-            setLessonInfo(_lessonInfo as Chapter);
+            let _clone = {
+                chapterId: _lessonInfo?.chapterId,
+                isCompleted: _lessonInfo?.isCompleted ?? false
+            } as Chapter
+            setLessonInfo(_clone);
         }
     }, [courseContentData[activeVideo], activeVideo])
 

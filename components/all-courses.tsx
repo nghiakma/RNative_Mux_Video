@@ -31,15 +31,11 @@ const AllCourses = () => {
     
     useEffect(() => {
         loadAllCourses();
-        loadProgressOfUser();
     }, [])
 
-    useFocusEffect(
-        useCallback(() => {
-            loadAllCourses();
-            loadProgressOfUser();
-        },[]) 
-    )
+    useEffect(() => {
+        loadProgressOfUser();
+    }, [courses])
 
     const loadAllCourses = async () => {
         try {
