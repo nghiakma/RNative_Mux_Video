@@ -8,7 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
+import { Animated, Dimensions, PanResponder, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
 import { widthPercentageToDP } from "react-native-responsive-screen";
 import { Toast } from "react-native-toast-notifications";
 import app from "../../app.json";
@@ -293,6 +293,29 @@ const CourseAccessScreen = () => {
         return stars;
     }
 
+    const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get('window');
+    const pan = useRef(new Animated.ValueXY()).current;
+    const panResponder = useRef(
+        PanResponder.create({
+            onMoveShouldSetPanResponder: () => true,
+            onPanResponderMove: (e, gestureState) => {
+                const newX = Math.min(
+                    Math.max(gestureState.dx, 0),
+                    ScreenWidth - 100 // Giới hạn phải (nút rộng 100px)
+                );
+                const newY = Math.min(
+                    Math.max(gestureState.dy + 100, 100), // Bắt đầu từ vị trí 100px
+                    ScreenHeight - 200 // Giới hạn dưới
+                );
+
+                pan.setValue({ x: newX, y: newY });
+            },
+            onPanResponderRelease: () => {
+                pan.flattenOffset();
+            },
+        })
+    ).current;
+
     return (
         <>
             {isLoading ? (
@@ -417,7 +440,8 @@ const CourseAccessScreen = () => {
                             style={{
                                 marginHorizontal: 10,
                                 marginVertical: 25,
-                                paddingHorizontal: 0
+                                paddingHorizontal: 0,
+                                height: 600
                             }}
                         >
                             <View style={{marginVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 10}}>
@@ -456,52 +480,74 @@ const CourseAccessScreen = () => {
                                 </TouchableOpacity>
                                 )}
                             </View>
-                            <Text style={{ fontSize: 18, fontFamily: "Raleway_700Bold" }}>
-                                Tham khảo
-                            </Text>
-                            {courseContentData[activeVideo]?.links.map((link: LinkType, index: number) => (
-                                <View
-                                    key={`indexavjkahfkahkas-${index}`}
-                                    style={{
-                                        width: "100%",
-                                        flexDirection: "row",
-                                        gap: 10,
-                                        alignItems: "center"
-                                    }}>
-                                    <Text
-                                        style={{
-                                            color: "#525258",
-                                            fontSize: 16,
-                                            marginTop: 10,
-                                            textAlign: "justify",
-                                            fontFamily: "Nunito_500Medium"
-                                        }}
-                                    >
-                                        {link.title}
+                            <View style={{flexDirection: 'column', gap: 5}}>
+                                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                                    <Text style={{ fontSize: 18, fontFamily: "Raleway_700Bold" }}>
+                                        Tham khảo
                                     </Text>
-                                    <Text
+                                    <Animated.View
                                         style={{
-                                            color: "#525258",
-                                            fontSize: 16,
-                                            marginTop: 10,
-                                            textAlign: "justify",
-                                            fontFamily: "Nunito_500Medium"
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            width: 40,
+                                            height: 40,
+                                            borderRadius: 50,
+                                            backgroundColor: '#0085ff',
+                                            transform: pan.getTranslateTransform(),
+                                            shadowColor: '#000', // Màu bóng
+                                            shadowOffset: { width: 0, height: 5 }, // Độ lệch bóng
+                                            shadowOpacity: 0.3, // Độ mờ của bóng
+                                            shadowRadius: 6.27, // Độ lớn của bóng
+                                            elevation: 10, // Độ cao của bóng trên Android
                                         }}
+                                        {...panResponder.panHandlers}
+                                        
                                     >
-                                        {link.url}
-                                    </Text>
+                                        <TouchableOpacity
+                                            onPress={() => router.push({
+                                                pathname: '/(routes)/note-lesson',
+                                                params: {
+                                                    id: 'úm ba là', 
+                                                    name: data.name
+                                                }
+                                            })}
+                                        >
+                                            <FontAwesome name="sticky-note" size={18} color="white" />
+                                        </TouchableOpacity>
+                                    </Animated.View>
                                 </View>
-                            ))}
-                            <Text
-                                style={{
-                                    color: "#525258",
-                                    fontSize: 16,
-                                    marginTop: 10,
-                                    textAlign: "justify",
-                                    fontFamily: "Nunito_500Medium"
-                                }}
-                            >
-                            </Text>
+                                {courseContentData[activeVideo]?.links.map((link: LinkType, index: number) => (
+                                    <View
+                                        key={`indexavjkahfkahkas-${index}`}
+                                        style={{
+                                            width: "100%",
+                                            flexDirection: "column",
+                                        }}>
+                                        <Text
+                                            style={{
+                                                color: "#525258",
+                                                fontSize: 16,
+                                                marginTop: 10,
+                                                textAlign: "justify",
+                                                fontFamily: "Nunito_500Medium"
+                                            }}
+                                        >
+                                            {link.title}
+                                        </Text>
+                                        <Text
+                                            style={{
+                                                color: "#525258",
+                                                fontSize: 16,
+                                                marginTop: 10,
+                                                textAlign: "justify",
+                                                fontFamily: "Nunito_500Medium"
+                                            }}
+                                        >
+                                            {link.url}
+                                        </Text>
+                                    </View>
+                                ))}
+                            </View>
                         </View>
                     )}
                     {activeButton === "Q&A" && (

@@ -102,6 +102,14 @@ function RootLayoutNav() {
               headerBackTitle: "Trở về"
             }}
           />
+          <Stack.Screen 
+            name='(routes)/note-lesson/index'
+            options={{
+              headerShown: true,
+              title: 'Ghi chú bài học',
+              headerBackTitle: "Trở về"
+            }}
+          />
         </Stack>
       </ToastProvider>
     </Provider>
