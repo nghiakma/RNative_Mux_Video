@@ -39,9 +39,8 @@ const NoteLesson = () => {
                     <View style={{width: wp(90), marginTop: 20, marginBottom: 10, marginHorizontal: 'auto'}}>
                         <Text style={[styles.nameText2]}>Ghi chú của tôi</Text>
                     </View>
-                    <View
-                        style={[styles.noteContainer]}
-                    >
+                    {/* Single note */}
+                    <View style={[styles.noteContainer]}>
                         <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 15}}>Another note</Text>
                         <Text style={{fontSize: 14, color: '#444', marginBottom: 10}}>Date: 13 Jun, 2024</Text>
                         <View style={[styles.noteBtnContainer]}>
@@ -58,6 +57,7 @@ const NoteLesson = () => {
                             </TouchableOpacity>
                         </View>
                     </View>
+                    {/* Single note */}
                 </View>
             </ScrollView>  
             <BottomSheet
