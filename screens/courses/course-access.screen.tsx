@@ -509,7 +509,8 @@ const CourseAccessScreen = () => {
                                                 params: {
                                                     courseId: data._id,
                                                     courseDataId: lessonInfo.chapterId, 
-                                                    name: data.name
+                                                    name: data.name,
+                                                    nameLesson: `${courseContentData[activeVideo].title}`
                                                 }
                                             })}
                                         >

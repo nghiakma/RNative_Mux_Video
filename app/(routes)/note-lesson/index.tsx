@@ -19,7 +19,7 @@ const NoteLesson = () => {
         UPDATE: 'UPDATE'
     }
     const [action, setAction] = useState(actions.CREATE);
-    const {courseId, courseDataId, name} = useLocalSearchParams();
+    const {courseId, courseDataId, name, nameLesson} = useLocalSearchParams();
     const bottomSheetRef = useRef<BottomSheet>(null);
     const [subject, setSubject] = useState('');
     const [content, setContent] = useState('');
@@ -205,7 +205,7 @@ const NoteLesson = () => {
                                 <Text style={[styles.btnAddNewText]}>Tạo mới ghi chú</Text>
                             </TouchableOpacity>
                             <View style={{width: wp(90), marginTop: 20, marginBottom: 10, marginHorizontal: 'auto'}}>
-                                <Text style={[styles.nameText2]}>Ghi chú của tôi</Text>
+                                <Text style={[styles.nameText2]}>{nameLesson}</Text>
                             </View>
                             <View style={{gap: 10}}>
                                 { notes.length > 0 ? 
