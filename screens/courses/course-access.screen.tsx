@@ -507,7 +507,8 @@ const CourseAccessScreen = () => {
                                             onPress={() => router.push({
                                                 pathname: '/(routes)/note-lesson',
                                                 params: {
-                                                    id: 'úm ba là', 
+                                                    courseId: data._id,
+                                                    courseDataId: lessonInfo.chapterId, 
                                                     name: data.name
                                                 }
                                             })}

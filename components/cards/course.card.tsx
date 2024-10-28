@@ -57,7 +57,7 @@ export default function CourseCard({ item }: { item: CoursesType }) {
                         alignSelf: "center",
                         objectFit: "cover",
                     }}
-                    source={{ uri: item.thumbnail.url }}
+                    source={{ uri: item.thumbnail?.url }}
                 />
                 <View style={{ width: wp(80) }}>
                     <Text

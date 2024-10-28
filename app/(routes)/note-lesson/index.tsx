@@ -1,100 +1,326 @@
-import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
+import { MaterialIcons, FontAwesome5, Entypo } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Button, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
+import { Alert, Button, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
 import {
     widthPercentageToDP as wp,
     heightPercentageToDP as hp
 } from "react-native-responsive-screen";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import axios from "axios";
+import { URL_SERVER } from "@/utils/url";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Loader from "@/components/loader";
 
 const NoteLesson = () => {
-    const {id, name} = useLocalSearchParams();
+    const actions = {
+        CREATE: 'CREATE',
+        UPDATE: 'UPDATE'
+    }
+    const [action, setAction] = useState(actions.CREATE);
+    const {courseId, courseDataId, name} = useLocalSearchParams();
     const bottomSheetRef = useRef<BottomSheet>(null);
     const [subject, setSubject] = useState('');
     const [content, setContent] = useState('');
+    const [notes, setNotes] = useState<{_id: string,subject: string, content: string}[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [targetUpdateId, setTargetUpdateId] = useState('');
 
-    const handleSnapPress = useCallback((index: number) => {
+    useEffect(() => {
+        const subscription = async () => {
+            await fetchNotesOfUserInCurrentCourseDataId();
+        }
+        subscription();
+    }, [])
+
+    const fetchNotesOfUserInCurrentCourseDataId = async () => {
+        try {
+            setLoading(true);
+            const accessToken = await AsyncStorage.getItem('access_token');
+            const refreshToken = await AsyncStorage.getItem('refresh_token');
+            const response = await axios.get(`${URL_SERVER}/user/get-list-notes?courseId=${courseId}&courseDataId=${courseDataId}`, {
+                headers: {
+                    'access-token': accessToken,
+                    'refresh-token': refreshToken
+                }
+            })
+            if(response.data.response){
+                setNotes(response.data.response.note);
+            }
+            setLoading(false);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const openBottomSheetCreate = (index: number) => {
+        setAction(actions.CREATE);
         bottomSheetRef.current?.snapToIndex(index);
-    }, []);
+    };
 
-    const onSaveNote = () => {
-        bottomSheetRef.current?.close();
+    const openBottomSheetUpdate = (index: number, id: string) => {
+        setAction(actions.UPDATE);
+        setTargetUpdateId(id);
+        const targetNote = notes.find(note => note._id === id);
+        if(targetNote){
+            setSubject(targetNote.subject);
+            setContent(targetNote.content);
+            bottomSheetRef.current?.snapToIndex(index);
+        }else{
+            console.log("Không tìm thấy ghi chú bạn cần!");
+        }
+    };
+
+    const onSaveNote = async () => {
+        try {
+            setLoading(true);
+            const accessToken = await AsyncStorage.getItem('access_token');
+            const refreshToken = await AsyncStorage.getItem('refresh_token');
+            await axios.post(`${URL_SERVER}/user/create-note-by-courseDataId`, {
+                courseId: courseId,
+                courseDataId: courseDataId,
+                subject: subject,
+                content: content
+            }, {
+                headers: {
+                    'access-token': accessToken,
+                    'refresh-token': refreshToken
+                }
+            });
+            const response = await axios.get(`${URL_SERVER}/user/get-list-notes?courseId=${courseId}&courseDataId=${courseDataId}`, {
+                headers: {
+                    'access-token': accessToken,
+                    'refresh-token': refreshToken
+                }
+            })
+            if(response.data.response){
+                setNotes(response.data.response.note);
+            }
+            setSubject('');
+            setContent('');
+            setLoading(false);
+        } catch (error) {
+            console.log(error);
+        }finally{
+            bottomSheetRef.current?.close();
+        }
+    }
+
+    const onOpenAlertDialog = (id: string) => {
+        Alert.alert(
+            "Cảnh báo", 
+            "Bạn thực sự muốn xóa ghi chú này?", 
+            [
+                {
+                    text: "Hủy bỏ",
+                    style: "cancel",
+                },
+                {
+                    text: "Chấp nhận",
+                    style: "destructive",
+                    onPress: () => onDeleteSingleNote(id)
+                }
+            ]
+        )
+    }
+
+    const onDeleteSingleNote = async (id: string) => {
+        try {
+            setLoading(true);
+            const accessToken = await AsyncStorage.getItem('access_token');
+            const refreshToken = await AsyncStorage.getItem('refresh_token');
+            await axios.delete(`${URL_SERVER}/user/delete-single-note-id-in-note?courseId=${courseId}&courseDataId=${courseDataId}&singleNoteIdInNote=${id}`, {
+                headers: {
+                    'access-token': accessToken,
+                    'refresh-token': refreshToken
+                }
+            });
+            const response = await axios.get(`${URL_SERVER}/user/get-list-notes?courseId=${courseId}&courseDataId=${courseDataId}`, {
+                headers: {
+                    'access-token': accessToken,
+                    'refresh-token': refreshToken
+                }
+            })
+            if(response.data.response){
+                setNotes(response.data.response.note);
+            }
+            setLoading(false);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const onUpdateSingleNote = async (id: string) => {
+        try {
+            setLoading(true);
+            const accessToken = await AsyncStorage.getItem('access_token');
+            const refreshToken = await AsyncStorage.getItem('refresh_token');
+            await axios.put(`${URL_SERVER}/user/update-single-note-id-in-note`,{
+                courseId: courseId,
+                courseDataId: courseDataId,
+                subject: subject,
+                content: content,
+                singleNoteId: id
+            } ,{
+                headers: {
+                    'access-token': accessToken,
+                    'refresh-token': refreshToken
+                }
+            });
+            const response = await axios.get(`${URL_SERVER}/user/get-list-notes?courseId=${courseId}&courseDataId=${courseDataId}`, {
+                headers: {
+                    'access-token': accessToken,
+                    'refresh-token': refreshToken
+                }
+            })
+            if(response.data.response){
+                setNotes(response.data.response.note);
+            }
+            setAction(actions.CREATE);
+            setTargetUpdateId('');
+            setSubject('');
+            setContent('');
+            setLoading(false);
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     return (
-        <GestureHandlerRootView style={styles.container}>
-            <ScrollView style={{flex: 1}}>
-                <View style={{marginVertical: 20}}> 
-                    <Text style={[styles.nameText]}>{name}</Text>
-                </View>
-                <TouchableOpacity
-                    style={[styles.btnAddNew]}
-                    onPress={() => handleSnapPress(0)}
-                >
-                    <Text style={[styles.btnAddNewText]}>Tạo mới ghi chú</Text>
-                </TouchableOpacity>
-                <View>
-                    <View style={{width: wp(90), marginTop: 20, marginBottom: 10, marginHorizontal: 'auto'}}>
-                        <Text style={[styles.nameText2]}>Ghi chú của tôi</Text>
-                    </View>
-                    {/* Single note */}
-                    <View style={[styles.noteContainer]}>
-                        <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 15}}>Another note</Text>
-                        <Text style={{fontSize: 14, color: '#444', marginBottom: 10}}>Date: 13 Jun, 2024</Text>
-                        <View style={[styles.noteBtnContainer]}>
+        <>
+            { loading ?
+                (
+                    <Loader/>
+                ):(
+                    <GestureHandlerRootView style={styles.container}>
+                        <ScrollView style={{flex: 1}}>
+                            <View style={{marginVertical: 20}}> 
+                                <Text style={[styles.nameText]}>{name}</Text>
+                            </View>
                             <TouchableOpacity
-                                style={[styles.noteBtn, styles.noteBtnUpdate]}
-                                onPress={() => handleSnapPress(0)}
+                                style={[styles.btnAddNew]}
+                                onPress={() => openBottomSheetCreate(0)}
                             >
-                                <MaterialIcons name="note-add" size={20} color="white" />
+                                <Text style={[styles.btnAddNewText]}>Tạo mới ghi chú</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.noteBtn, styles.noteBtnDelete]}
-                            >
-                                <FontAwesome5 name="trash-alt" size={20} color="black" />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                    {/* Single note */}
-                </View>
-            </ScrollView>  
-            <BottomSheet
-                ref={bottomSheetRef}
-                index={-1}
-                snapPoints={['80%']}
-                enableDynamicSizing={false}
-                enablePanDownToClose={true}
-            >
-                <BottomSheetView style={styles.contentContainer}>
-                    <View style={{width: wp(100)}}>
-                        <Text style={[styles.bottomSheetTitleText]}>
-                            Ghi chú mới
-                        </Text>
-                        <View>
-                            <TextInput 
-                                value={subject}
-                                onChangeText={(v) => setSubject(v)}
-                                placeholder="Chủ đề"
-                                style={[styles.bottemSheetInput]}
-                                placeholderTextColor="#aaa"
-                            />
-                            <TextInput 
-                                value={content}
-                                onChangeText={(v) => setContent(v)}
-                                placeholder="Nội dung"
-                                style={[styles.bottemSheetInput]}
-                                placeholderTextColor="#aaa"
-                            />
-                            <TouchableOpacity onPress={() => onSaveNote()} style={[styles.bottomSheetSaveBtn, {marginHorizontal: 10}]}>
-                                <Text style={{color: 'white', fontSize: 16}}>Lưu</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </BottomSheetView>
-            </BottomSheet>
-        </GestureHandlerRootView>
+                            <View style={{width: wp(90), marginTop: 20, marginBottom: 10, marginHorizontal: 'auto'}}>
+                                <Text style={[styles.nameText2]}>Ghi chú của tôi</Text>
+                            </View>
+                            <View style={{gap: 10}}>
+                                { notes.length > 0 ? 
+                                    notes.map((note) => (
+                                        <View key={note._id}>
+                                            {/* Single note */}
+                                            <View style={[styles.noteContainer]}>
+                                                <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 15}}>{note.subject}</Text>
+                                                <Text style={{fontSize: 14, color: '#444', marginBottom: 10}}>{note.content}</Text>
+                                                <View style={[styles.noteBtnContainer]}>
+                                                    <TouchableOpacity
+                                                        style={[styles.noteBtn, styles.noteBtnUpdate]}
+                                                        onPress={() => openBottomSheetUpdate(0, note._id)}
+                                                    >
+                                                        <MaterialIcons name="note-add" size={20} color="white" />
+                                                    </TouchableOpacity>
+                                                    <TouchableOpacity
+                                                        style={[styles.noteBtn, styles.noteBtnDelete]}
+                                                        onPress={() => onOpenAlertDialog(note._id)}
+                                                    >
+                                                        <FontAwesome5 name="trash-alt" size={20} color="black" />
+                                                    </TouchableOpacity>
+                                                </View>
+                                            </View>
+                                            {/* Single note */}
+                                        </View>
+                                    ))
+                                    :
+                                    (
+                                        <View style={{marginTop: 10, alignItems: 'center'}}>
+                                            <Entypo name="cloud" size={60} color="#ccc" />
+                                            <Text 
+                                                style={{
+                                                    fontSize: 16,
+                                                    fontWeight: '500',
+                                                    color: '#666',
+                                                    marginTop: 10,
+                                                    textAlign: 'center',
+                                                }}
+                                            >
+                                                Xin lỗi, hiện tại không có dữ liệu
+                                            </Text>
+                                        </View>
+                                    )
+                                }
+                            </View>
+                        </ScrollView>  
+                        <BottomSheet
+                            ref={bottomSheetRef}
+                            index={-1}
+                            snapPoints={['80%']}
+                            enableDynamicSizing={false}
+                            enablePanDownToClose={true}
+                        >
+                            <BottomSheetView style={styles.contentContainer}>
+                                {/* Tạo mới */}
+                                { action === actions.CREATE && (
+                                    <View style={{width: wp(100)}}>
+                                        <Text style={[styles.bottomSheetTitleText]}>
+                                            Ghi chú mới
+                                        </Text>
+                                        <View>
+                                            <TextInput 
+                                                value={subject}
+                                                onChangeText={(v) => setSubject(v)}
+                                                placeholder="Chủ đề"
+                                                style={[styles.bottemSheetInput]}
+                                                placeholderTextColor="#aaa"
+                                            />
+                                            <TextInput 
+                                                value={content}
+                                                onChangeText={(v) => setContent(v)}
+                                                placeholder="Nội dung"
+                                                style={[styles.bottemSheetInput]}
+                                                placeholderTextColor="#aaa"
+                                            />
+                                            <TouchableOpacity onPress={() => onSaveNote()} style={[styles.bottomSheetSaveBtn, {marginHorizontal: 10}]}>
+                                                <Text style={{color: 'white', fontSize: 16}}>Lưu</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                )}
+                                {/* Cập nhật */}
+                                { action === actions.UPDATE && (
+                                    <View style={{width: wp(100)}}>
+                                        <Text style={[styles.bottomSheetTitleText]}>
+                                            Nội dung ghi chú
+                                        </Text>
+                                        <View>
+                                            <TextInput 
+                                                value={subject}
+                                                onChangeText={(v) => setSubject(v)}
+                                                placeholder="Chủ đề"
+                                                style={[styles.bottemSheetInput]}
+                                                placeholderTextColor="#aaa"
+                                            />
+                                            <TextInput 
+                                                value={content}
+                                                onChangeText={(v) => setContent(v)}
+                                                placeholder="Nội dung"
+                                                style={[styles.bottemSheetInput]}
+                                                placeholderTextColor="#aaa"
+                                            />
+                                            <TouchableOpacity onPress={() => onUpdateSingleNote(targetUpdateId)} style={[styles.bottomSheetSaveBtn, {marginHorizontal: 10}]}>
+                                                <Text style={{color: 'white', fontSize: 16}}>Lưu</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                )}
+                            </BottomSheetView>
+                        </BottomSheet>
+                    </GestureHandlerRootView>
+                )
+            }
+        </>
     )
 }
 
@@ -163,7 +389,7 @@ const styles = StyleSheet.create({
     contentContainer: {
         flex: 1,
         alignItems: 'flex-start',
-        padding: 0
+        padding: 0,
     },
 
     bottomSheetTitleText: {
