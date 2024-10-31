@@ -1,4 +1,4 @@
-import { FontAwesome, FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { AntDesign, FontAwesome, FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
@@ -7,12 +7,31 @@ import {
     heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import * as Progress from "react-native-progress";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import * as userActions from "../../utils/store/actions/index";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { URL_SERVER } from "@/utils/url";
 
 export default function CourseCard({ item }: { item: CoursesType }) {
     const [showProgress, setShowProgress] = useState(false);
     const [progressFill, setProgressFill] = useState(0);
     const progresses = useSelector((state: any) => state.user.progress);
+    const [wishState, setWishState] = useState(false);
+    const wishList = useSelector((state: any) => state.user.wishList);
+    const [idWishCourse, setIdWishCourse] = useState('');
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        const isWished = wishList.find((_item: any) => _item.courseId === item._id);
+        if(isWished){
+            setWishState(true);
+            setIdWishCourse(isWished._id);
+        }else{
+            setWishState(false);
+            setIdWishCourse('');
+        }
+    }, [wishList])
 
     useEffect(() => {
         checkPurchasedCourse();
@@ -20,7 +39,6 @@ export default function CourseCard({ item }: { item: CoursesType }) {
 
     const checkPurchasedCourse = () => {
         let purchased = progresses.length > 0 && progresses.find((pro: any) => pro.courseId === item._id);
-        
         if(purchased){
             setShowProgress(true);
             calculateProgressBar();
@@ -38,6 +56,48 @@ export default function CourseCard({ item }: { item: CoursesType }) {
         return progress < 0.5 ? '#1c86b7' : '#237867';
     }
 
+    const onAddToWishList = async () => {
+        try {
+            const accessToken = await AsyncStorage.getItem('access_token');
+            const refreshToken = await AsyncStorage.getItem('refresh_token');
+            const response = await axios.post(`${URL_SERVER}/wishlist`, {
+                courseId: item._id
+            }, {
+                headers: {
+                    'access-token': accessToken,
+                    'refresh-token': refreshToken
+                }
+            });
+            const data = {
+                _id: response.data.data._id,
+                userId: response.data.userId,
+                courseId: item._id
+            }
+            dispatch(userActions.pushWishCourse(data));
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const onRemoveFromWishList = async () => {
+        try {
+            const accessToken = await AsyncStorage.getItem('access_token');
+            const refreshToken = await AsyncStorage.getItem('refresh_token');
+            await axios.delete(`${URL_SERVER}/wishlist?id=${idWishCourse}`, {
+                headers: {
+                    'access-token': accessToken,
+                    'refresh-token': refreshToken
+                }
+            });
+            const data = {
+                _id: idWishCourse,
+            }
+            dispatch(userActions.removeWishCourse(data));
+            setWishState(false);
+        } catch (error) {
+            console.log(error);
+        }
+    }
     return (
         <TouchableOpacity
             style={[styles.container, { marginHorizontal: "auto" }]}
@@ -48,7 +108,7 @@ export default function CourseCard({ item }: { item: CoursesType }) {
                 })
             }
         >
-            <View style={{ paddingHorizontal: 10, marginHorizontal: "auto" }}>
+            <View style={{ paddingHorizontal: 10, marginHorizontal: "auto", position: 'relative' }}>
                 <Image
                     style={{
                         width: wp(80),
@@ -59,6 +119,31 @@ export default function CourseCard({ item }: { item: CoursesType }) {
                     }}
                     source={{ uri: item.thumbnail?.url }}
                 />
+                <View 
+                    style={{
+                        position:'absolute',
+                        zIndex: 9999,
+                        top: 10,
+                        right: 10
+                    }}
+                >
+                    { !wishState && (
+                        <TouchableOpacity
+                            onPress={() => onAddToWishList()}
+                            style={styles.wishBtn}
+                        >
+                            <AntDesign name="hearto" size={18} color="white" />
+                        </TouchableOpacity>
+                    )}
+                    { wishState && (
+                        <TouchableOpacity
+                            onPress={() => onRemoveFromWishList()}
+                            style={styles.wishBtn}
+                        >
+                            <AntDesign name="heart" size={18} color="rgba(255, 0, 0, 0.6)" />
+                        </TouchableOpacity>
+                    )}
+                </View>
                 <View style={{ width: wp(80) }}>
                     <Text
                         style={{
@@ -169,4 +254,13 @@ const styles = StyleSheet.create({
         color: "white",
         fontSize: 14,
     },
+
+    wishBtn:{
+        borderRadius: 12,
+        width: 42,
+        height: 42,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(250, 202, 30, 0.8)'
+    }
 });

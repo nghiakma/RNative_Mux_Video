@@ -2,7 +2,8 @@ import { UserActions } from "../actions/user.actions"
 
 const initState = {
     progress: [],
-    paymented: []
+    paymented: [],
+    wishList: []
 }
 
 export const UserReducer = (state = initState, actions: Action) => {
@@ -35,6 +36,32 @@ export const UserReducer = (state = initState, actions: Action) => {
             return {
                 ...state,
                 paymented: []
+            }
+        }
+        case UserActions.SAVE_WISHLIST: {
+            return {
+                ...state,
+                wishList: [...actions.payload]
+            }
+        }
+        case UserActions.RESET_WISHLIST: {
+            return {
+                ...state,
+                wishList: []
+            }
+        }
+        case UserActions.PUSH_WISHCOURSE: {
+            let _wishList = [...state.wishList, actions.payload];
+            return {
+                ...state,
+                wishList: _wishList
+            }
+        }
+        case UserActions.REMOVE_WISHCOURSE: {
+            let _wishList = state.wishList.filter((item: any) => item._id !== actions.payload?._id);
+            return {
+                ...state,
+                wishList: _wishList
             }
         }
         default:

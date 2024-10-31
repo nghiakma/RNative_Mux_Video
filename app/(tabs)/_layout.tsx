@@ -5,6 +5,7 @@ import HouseSimpleIcon from "@/assets/images/icons/HouseSimple.png";
 import SearchIcon from "@/assets/images/icons/search.png";
 import BookBookmarkIcon from "@/assets/images/icons/BookBookmark.png";
 import UserIcon from "@/assets/images/icons/User.png";
+import CertificateIcon from "@/assets/images/icons/seat.png";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ToastProvider } from "react-native-toast-notifications";
 const TabsLayout = () => {
@@ -24,7 +25,9 @@ const TabsLayout = () => {
                                     iconName = SearchIcon;
                                 } else if (route.name === "courses/index") {
                                     iconName = BookBookmarkIcon;
-                                } else if (route.name === "profile/index") {
+                                }else if(route.name === "wishlist/index"){
+                                    iconName = CertificateIcon;
+                                }else if (route.name === "profile/index") {
                                     iconName = UserIcon;
                                 }
                                 return (
@@ -43,6 +46,7 @@ const TabsLayout = () => {
                     <Tabs.Screen name="search/index" />
                     <Tabs.Screen name="courses/index" />
                     <Tabs.Screen name="profile/index" />
+                    <Tabs.Screen name="wishlist/index"/>
                 </Tabs>
             </SafeAreaView>
         </ToastProvider>

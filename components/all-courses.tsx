@@ -9,8 +9,8 @@ import { Text, TouchableOpacity, View } from "react-native";
 import CourseCard from "./cards/course.card";
 import { Zocial } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { useDispatch, useSelector } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
 import * as userActions from "../utils/store/actions/user.actions";
 
 const AllCourses = () => {
@@ -18,16 +18,15 @@ const AllCourses = () => {
     const [courses, setCourses] = useState<CoursesType[]>([]);
     const [progresses, setProgresses] = useState<Progress[]>([]);
     const dispatch = useDispatch();
-    // const user = useSelector((state: any) => state.user);
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-        loadAllCourses();
-        loadProgressOfUser();
-    });
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+            loadAllCourses();
+            loadProgressOfUser();
+        });
 
-    return unsubscribe; // Hủy đăng ký khi component unmount
-  }, [navigation]);
+        return unsubscribe; // Hủy đăng ký khi component unmount
+    }, [navigation]);
     
     useEffect(() => {
         loadAllCourses();
