@@ -1,5 +1,4 @@
 import CourseCard from "@/components/cards/course.card";
-import SearchInput from "@/components/search.input";
 import { URL_SERVER } from "@/utils/url";
 import { Nunito_700Bold } from "@expo-google-fonts/nunito";
 import { AntDesign, Zocial } from "@expo/vector-icons";
@@ -8,7 +7,10 @@ import axios from "axios";
 import { useFonts } from "expo-font";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { FlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
+import { 
+    widthPercentageToDP as wp
+} from "react-native-responsive-screen";
 
 const styles = StyleSheet.create({
     filteringContainer: {
@@ -116,7 +118,7 @@ const SearchScreen = () => {
     }
 
     return (
-        <ScrollView style={{ flex: 1, marginTop: 10 }}>
+        <ScrollView style={{ flex: 1, marginTop: 10 }} showsVerticalScrollIndicator={false}>
             <View style={styles.filteringContainer}>
                 <View style={styles.searchContainer}>
                     <TextInput
@@ -135,7 +137,7 @@ const SearchScreen = () => {
             </View>
             <View>
                 {filteredCourses.length > 0 && filteredCourses.map((item: any, index: number) => (
-                    <View key={`${index}-c`}>
+                    <View key={`${index}-c`} style={{width: wp(90), marginHorizontal: 'auto'}}>
                         <CourseCard item={item} />
                     </View>
                 ))}

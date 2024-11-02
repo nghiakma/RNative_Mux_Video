@@ -8,7 +8,6 @@ import { useSelector } from "react-redux";
 
 import { 
     widthPercentageToDP as wp,
-    heightPercentageToDP as hp
 } from "react-native-responsive-screen";
 import { useFonts } from "expo-font";
 import { Nunito_400Regular, Nunito_500Medium, Nunito_700Bold, Nunito_600SemiBold } from "@expo-google-fonts/nunito";
@@ -73,7 +72,7 @@ const WishListScreen = () => {
                     <View style={[styles.titleContainer]}>
                         <Text style={[styles.titleText, {fontFamily: 'Nunito_600SemiBold'}]}>Khóa học yêu thích</Text>
                     </View>
-                    <ScrollView style={{marginTop: 20, flex: 1,marginHorizontal: 'auto', position: 'relative', zIndex: 99}}>
+                    <ScrollView style={{marginTop: 20, flex: 1, marginHorizontal: 'auto', position: 'relative', zIndex: 99}} showsVerticalScrollIndicator={false}>
                         { filteredCourses.length > 0 && (
                             filteredCourses.map(course => (
                                 <View style={{width: wp(90)}} key={course._id}>

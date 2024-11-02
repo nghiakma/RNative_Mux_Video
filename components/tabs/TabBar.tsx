@@ -1,6 +1,9 @@
 import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
 import {BottomTabBarProps} from "@react-navigation/bottom-tabs"
 import { AntDesign, Ionicons, Octicons } from "@expo/vector-icons";
+import { 
+  widthPercentageToDP as wp
+} from "react-native-responsive-screen";
 
 type RouteNames = "index" 
             | "search/index" 
@@ -17,8 +20,8 @@ const TabBar = ({state, navigation, descriptors}: BottomTabBarProps) => {
         ['profile/index']: ({color}: {color: string}) => <AntDesign name="user" size={20} color={color} />,
         ['wishlist/index']: ({color}: {color: string}) => <AntDesign name="staro" size={20} color={color} />,
     }
-    const primaryColor = '#0891b2';
-    const greyColor = '#737373';
+    const primaryColor = '#fff';
+    const greyColor = 'rgba(0, 0, 0, 0.5)';
 
     return (
         <View style={[styles.tabBar]}>
@@ -84,11 +87,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: '#ccc',
+        backgroundColor: '#0085ff',
         paddingVertical: 15,
+        paddingHorizontal: 10,
         borderCurve: 'continuous',
-        borderTopRightRadius: 20,
-        borderTopLeftRadius: 20,
+        borderRadius: 20,
+        marginBottom: 10,
+        marginHorizontal: 'auto',
+        width: wp(96),
         shadowColor: 'black',
         shadowOffset: {
             width: 0,

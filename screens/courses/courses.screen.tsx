@@ -9,7 +9,9 @@ import axios from "axios";
 import { useFonts } from "expo-font";
 import { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native"
-
+import {
+    widthPercentageToDP as wp
+} from "react-native-responsive-screen"
 
 const CoursesScreen = () => {
     const [courses, setCourses] = useState<CoursesType[]>([]);
@@ -140,9 +142,11 @@ const CoursesScreen = () => {
                         </ScrollView>
                     </View>
                     {courses.length > 0 && (
-                        <ScrollView style={{ marginHorizontal: 15, gap: 12, flex: 1 }}>
+                        <ScrollView style={{ gap: 10, flex: 1 }} showsVerticalScrollIndicator={false}>
                             {courses?.map((item: CoursesType, index: number) => (
-                                <CourseCard item={item} key={index}/>
+                                <View style={{width: wp(90), marginHorizontal: 'auto'}}>
+                                    <CourseCard item={item} key={index}/>
+                                </View>
                             ))}
                         </ScrollView>
                     )}
