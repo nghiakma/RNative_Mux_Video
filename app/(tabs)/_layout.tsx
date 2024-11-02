@@ -1,13 +1,8 @@
 import useUser from "@/hooks/useUser";
 import { Tabs } from "expo-router";
-import { Image } from "react-native";
-import HouseSimpleIcon from "@/assets/images/icons/HouseSimple.png";
-import SearchIcon from "@/assets/images/icons/search.png";
-import BookBookmarkIcon from "@/assets/images/icons/BookBookmark.png";
-import UserIcon from "@/assets/images/icons/User.png";
-import CertificateIcon from "@/assets/images/icons/seat.png";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ToastProvider } from "react-native-toast-notifications";
+import TabBar from "@/components/tabs/TabBar";
 const TabsLayout = () => {
     const { user } = useUser();
 
@@ -15,38 +10,41 @@ const TabsLayout = () => {
         <ToastProvider>
             <SafeAreaView style={{ flex: 1 }}>
                 <Tabs
-                    screenOptions={({ route }) => {
-                        return {
-                            tabBarIcon: ({ color }) => {
-                                let iconName;
-                                if (route.name === "index") {
-                                    iconName = HouseSimpleIcon;
-                                } else if (route.name === "search/index") {
-                                    iconName = SearchIcon;
-                                } else if (route.name === "courses/index") {
-                                    iconName = BookBookmarkIcon;
-                                }else if(route.name === "wishlist/index"){
-                                    iconName = CertificateIcon;
-                                }else if (route.name === "profile/index") {
-                                    iconName = UserIcon;
-                                }
-                                return (
-                                    <Image
-                                        style={{ width: 25, height: 25, tintColor: color }}
-                                        source={iconName}
-                                    />
-                                )
-                            },
-                            headerShown: false,
-                            tabBarShowLabel: false
-                        }
+                    tabBar={props => <TabBar {...props}/>}
+                    screenOptions={{
+                        headerShown: false,
                     }}
                 >
-                    <Tabs.Screen name="index"/>
-                    <Tabs.Screen name="search/index" />
-                    <Tabs.Screen name="courses/index" />
-                    <Tabs.Screen name="profile/index" />
-                    <Tabs.Screen name="wishlist/index"/>
+                    <Tabs.Screen 
+                        name="index" 
+                        options={{
+                            title: 'Trang chủ'
+                        }}
+                    />
+                    <Tabs.Screen 
+                        name="search/index" 
+                        options={{
+                            title: 'Tìm kiếm'
+                        }}    
+                    />
+                    <Tabs.Screen 
+                        name="courses/index" 
+                        options={{
+                            title: 'Khóa học'
+                        }}    
+                    />
+                    <Tabs.Screen 
+                        name="wishlist/index"
+                        options={{
+                            title: 'Yêu thích'
+                        }}    
+                    />
+                    <Tabs.Screen 
+                        name="profile/index" 
+                        options={{
+                            title: 'Hồ sơ'
+                        }}    
+                    />
                 </Tabs>
             </SafeAreaView>
         </ToastProvider>
