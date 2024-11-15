@@ -2,7 +2,7 @@ import ReviewCard from "@/components/cards/review.card";
 import CourseLesson from "@/components/course-lesson";
 import Loader from "@/components/loader";
 import useUser from "@/hooks/useUser";
-import { URL_SERVER, URL_VIDEOS } from "@/utils/url";
+import { URL_SERVER, URL_VIDEO, URL_VIDEOS } from "@/utils/url";
 import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold } from "@expo-google-fonts/nunito";
 import { Raleway_600SemiBold, Raleway_700Bold } from "@expo-google-fonts/raleway";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
@@ -27,10 +27,7 @@ const MuxVideo = muxReactNativeVideo(Video);
 
 const CourseDetailsScreen = () => {
 
-   
-    const videoRef = useRef<VideoRef>(null);
-
-  
+    const videoRef = useRef<VideoRef>(null);  
 
     const [activeButton, setActiveButton] = useState("About");
     const { user, loading } = useUser();
@@ -39,11 +36,11 @@ const CourseDetailsScreen = () => {
     const courseData: CoursesType = JSON.parse(item as string); // truyền ngu vl 
     const [courseInfo, setCourseInfo] = useState<CoursesType>();
     const [checkPurchased, setCheckPurchased] = useState(false);
-    const [videoData, SetVideoData] = useState({
-        id:"",
-        videoId: ""
-    })
-    const [token, setToken] = useState('');
+    const [videoData, setVideoData] = useState("");
+    const [token, setToken] = useState({
+        access: "",
+        refresh: ""
+    });
 
 
     useEffect(() => {
@@ -55,33 +52,29 @@ const CourseDetailsScreen = () => {
     const LoadCourse = async () => {
         let paymented: { _id: string }[] = [];
         try {
+            const accessToken = await AsyncStorage.getItem("access_token");
+            const refreshToken = await AsyncStorage.getItem("refresh_token");
             let data = await AsyncStorage.getItem("paymented");
             if (data) {
                 paymented = JSON.parse(data);
             }
             const response = await axios.get(`${URL_SERVER}/get-courses`);
             const _data: CoursesType = response.data?.courses?.filter((item: any) => item._id === courseData._id)[0];
-            axios.get(`${URL_SERVER}/getMuxVideoOTP?videoId=${_data.demoUrl}`) 
-                .then((res) => {
-                    SetVideoData({
-                        id: res.data.data.id,
-                        videoId: res.data.data.playback_ids[0].id
-                    });
-                    axios
-                        .get(`${URL_SERVER}/signedUrlMuxVideo`, {
-                            params: {
-                                videoId: res.data.data.playback_ids[0].id
-                            }
-                        })
-                        .then((res) => {
-                            const token = res.data.token;
-                            setToken(token);
-                        })
-                        .catch(error => {
-                            console.log(error);
-                        });
+            if(_data){
+                axios.get(`${URL_VIDEO}/api/files/${_data.demoUrl}`, {
+                    headers: {
+                        'access-token': accessToken,
+                        'refresh-token': refreshToken
+                    }
                 })
-
+                    .then((result) => {
+                        setToken({
+                            access: accessToken ?? '',
+                            refresh: refreshToken ?? ''
+                        })
+                        setVideoData(result.data.url);
+                    })
+            }
             const isPaymentedCourse = paymented.some((item) => item._id === _data._id);
             const isUserCourse = user?.courses.some((item: any) => item._id === _data._id);
             if (isPaymentedCourse || isUserCourse) {
@@ -190,29 +183,15 @@ const CourseDetailsScreen = () => {
                                 </View>
                             </View>
                             <View style={{ width: "100%", aspectRatio: 18 / 9, borderRadius: 10 }}>
-                                {/* <MuxVideo
-                                    style={styles.video}
-                                    source={{
-                                        uri:
-                                            `https://stream.mux.com/${videoData.videoId}.m3u8?token=${token}`,
-                                    }}
-                                    controls
-                                    muted
-                                    muxOptions={{
-                                        application_name: app.name,            // (required) the name of your application
-                                        application_version: app.version,      // the version of your application (optional, but encouraged)
-                                        data: {
-                                            env_key: '8m01he8sfkme3cie3juold22i',     // (required)
-                                            video_id: videoData.id,             // (required)
-                                            video_title: 'My awesome video',
-                                            player_software_version: '5.0.2',     // (optional, but encouraged) the version of react-native-video that you are using
-                                            player_name: 'React Native Player',  // See metadata docs for available metadata fields https://docs.mux.com/docs/web-integration-guide#section-5-add-metadata
-                                        },
-                                    }}
-                                /> */}
                                 <Video 
                                     ref={videoRef}
-                                    source={{uri: `${URL_VIDEOS}/${courseData.demoUrl}`}}
+                                    source={{
+                                        uri: `${URL_VIDEO}${videoData}`, 
+                                        headers: {
+                                            'access-token': token.access,
+                                            'refresh-token': token.refresh
+                                        }
+                                    }}
                                     style={{width: widthPercentageToDP(90), marginHorizontal: 'auto', height: 200}}
                                     controls={true} // Tắt controls mặc 
                                     // Vô hiệu hóa các tính năng có thể dẫn đến download
