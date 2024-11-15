@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import * as userActions from "../../utils/store/actions/index";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { URL_SERVER } from "@/utils/url";
+import { URL_IMAGES, URL_SERVER } from "@/utils/url";
 
 export default function CourseCard({ item }: { item: CoursesType }) {
     const [showProgress, setShowProgress] = useState(false);
@@ -117,7 +117,7 @@ export default function CourseCard({ item }: { item: CoursesType }) {
                         alignSelf: "center",
                         objectFit: "cover",
                     }}
-                    source={{ uri: item.thumbnail?.url }}
+                    source={{ uri: `${URL_IMAGES}/${item.thumbnail?.url}`}}
                 />
                 <View 
                     style={{

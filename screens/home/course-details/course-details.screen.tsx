@@ -2,7 +2,7 @@ import ReviewCard from "@/components/cards/review.card";
 import CourseLesson from "@/components/course-lesson";
 import Loader from "@/components/loader";
 import useUser from "@/hooks/useUser";
-import { URL_SERVER } from "@/utils/url";
+import { URL_SERVER, URL_VIDEOS } from "@/utils/url";
 import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold } from "@expo-google-fonts/nunito";
 import { Raleway_600SemiBold, Raleway_700Bold } from "@expo-google-fonts/raleway";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
@@ -15,14 +15,23 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
     Image, ScrollView, Text, TouchableOpacity, View, SafeAreaView,
     StyleSheet,
+    Alert,
 } from "react-native"
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import app from "../../../package.json";
-import Video from 'react-native-video';
+import Video, { VideoRef } from 'react-native-video';
 import muxReactNativeVideo from '@mux/mux-data-react-native-video';
+import { widthPercentageToDP } from "react-native-responsive-screen";
+import { WebView } from 'react-native-webview';
 const MuxVideo = muxReactNativeVideo(Video);
 
 const CourseDetailsScreen = () => {
+
+   
+    const videoRef = useRef<VideoRef>(null);
+
+  
+
     const [activeButton, setActiveButton] = useState("About");
     const { user, loading } = useUser();
     const [isExpanded, setIsExpanded] = useState(false);
@@ -181,7 +190,7 @@ const CourseDetailsScreen = () => {
                                 </View>
                             </View>
                             <View style={{ width: "100%", aspectRatio: 18 / 9, borderRadius: 10 }}>
-                                <MuxVideo
+                                {/* <MuxVideo
                                     style={styles.video}
                                     source={{
                                         uri:
@@ -200,7 +209,16 @@ const CourseDetailsScreen = () => {
                                             player_name: 'React Native Player',  // See metadata docs for available metadata fields https://docs.mux.com/docs/web-integration-guide#section-5-add-metadata
                                         },
                                     }}
+                                /> */}
+                                <Video 
+                                    ref={videoRef}
+                                    source={{uri: `${URL_VIDEOS}/${courseData.demoUrl}`}}
+                                    style={{width: widthPercentageToDP(90), marginHorizontal: 'auto', height: 200}}
+                                    controls={true} // Tắt controls mặc 
+                                    // Vô hiệu hóa các tính năng có thể dẫn đến download
+                                    allowsExternalPlayback={false}
                                 />
+                
                             </View>
                             <Text
                                 style={{

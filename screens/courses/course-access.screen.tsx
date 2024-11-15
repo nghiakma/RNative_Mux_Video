@@ -2,7 +2,7 @@ import QuestionsCard from "@/components/cards/question.card";
 import ReviewCard from "@/components/cards/review.card";
 import Loader from "@/components/loader";
 import useUser from "@/hooks/useUser";
-import { URL_SERVER } from "@/utils/url";
+import { URL_SERVER, URL_VIDEOS } from "@/utils/url";
 import { Feather, FontAwesome } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
@@ -12,7 +12,7 @@ import { Animated, Dimensions, PanResponder, ScrollView, StyleSheet, Text, TextI
 import { widthPercentageToDP } from "react-native-responsive-screen";
 import { Toast } from "react-native-toast-notifications";
 import app from "../../app.json";
-import Video from 'react-native-video';
+import Video, { VideoRef } from 'react-native-video';
 import muxReactNativeVideo from '@mux/mux-data-react-native-video';
 import { useDispatch } from "react-redux";
 import * as userActions from '../../utils/store/actions';
@@ -75,6 +75,8 @@ const CourseAccessScreen = () => {
         isCompleted: false
     })
     const dispatch = useDispatch();
+    const videoRef = useRef<VideoRef>(null);
+
     
     useEffect(() => {
         if (courseContentData[activeVideo]) {
@@ -323,7 +325,7 @@ const CourseAccessScreen = () => {
             ) : (
                 <ScrollView style={{ flex: 1, padding: 10 }}>
                     <View style={{ width: "100%", aspectRatio: 18 / 9, borderRadius: 10 }}>
-                        <MuxVideo
+                        {/* <MuxVideo
                             style={{width: "100%", height: 200}}
                             source={{
                                 uri:
@@ -342,6 +344,13 @@ const CourseAccessScreen = () => {
                                     player_name: 'React Native Player',  // See metadata docs for available metadata fields https://docs.mux.com/docs/web-integration-guide#section-5-add-metadata
                                 },
                             }}
+                        /> */}
+                        <Video 
+                            ref={videoRef}
+                            source={{uri: `${URL_VIDEOS}/${courseContentData[activeVideo]?.videoUrl}`}}
+                            style={{width: widthPercentageToDP(90), marginHorizontal: 'auto', height: 200}}
+                            controls={true} 
+                            allowsExternalPlayback={false}
                         />
                     </View>
                     <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
