@@ -418,7 +418,7 @@ const CourseDetailsScreen = () => {
                                         {courseInfo?.reviews?.map(
                                             (item: ReviewType, index: number) => (
                                                 <View key={`${index}-baa`}>
-                                                    <ReviewCard item={item} />
+                                                    <ReviewCard item={item} key={`${index}-gagagw`}/>
                                                 </View>
                                             )
                                         )}

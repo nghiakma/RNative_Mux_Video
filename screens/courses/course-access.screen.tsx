@@ -2,7 +2,7 @@ import QuestionsCard from "@/components/cards/question.card";
 import ReviewCard from "@/components/cards/review.card";
 import Loader from "@/components/loader";
 import useUser from "@/hooks/useUser";
-import { URL_SERVER, URL_VIDEOS } from "@/utils/url";
+import { URL_SERVER, URL_VIDEO, URL_VIDEOS } from "@/utils/url";
 import { Feather, FontAwesome } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
@@ -62,11 +62,11 @@ const CourseAccessScreen = () => {
     const [rating, setRating] = useState(1);
     const [review, setReview] = useState("");
     const [reviewAvailable, setReviewAvailable] = useState(false);
-    const [token, setToken] = useState('');
-    const [videoData, setVideoData] = useState({
-        id: "",
-        videoId: ""
+    const [token, setToken] = useState({
+        access: '',
+        refresh: ''
     });
+    const [videoData, setVideoData] = useState('');
     
     const [progresses, setProgresses] = useState<Progress[]>([]);
     const [courseProgress, setCourseProgress] = useState<Progress>();
@@ -80,22 +80,14 @@ const CourseAccessScreen = () => {
     
     useEffect(() => {
         if (courseContentData[activeVideo]) {
-            axios.get(`${URL_SERVER}/getMuxVideoOTP?videoId=${courseContentData[activeVideo].videoUrl}`)
-                .then((res) => {
-                    setVideoData({
-                        id: res.data.data.id,
-                        videoId: res.data.data.playback_ids[0].id
-                    });
-                    axios
-                        .get(`${URL_SERVER}/signedUrlMuxVideo`, {
-                            params: {
-                                videoId: res.data.data.playback_ids[0].id
-                            }
-                        })
-                        .then((res) => {
-                            const token = res.data.token;
-                            setToken(token);
-                        });
+            axios.get(`${URL_VIDEO}/api/files/${courseContentData[activeVideo].videoUrl}`, {
+                headers: {
+                    'access-token': token.access,
+                    'refresh-token': token.refresh
+                }
+            })
+                .then((result) => {
+                    setVideoData(result.data.url);
                 })
             let _lessonInfo = courseProgress?.chapters.find(chapter => chapter.chapterId === courseContentData[activeVideo]._id);
             let _clone = {
@@ -165,6 +157,10 @@ const CourseAccessScreen = () => {
                     "access-token": accessToken,
                     "refresh-token": refreshToken
                 }
+            });
+            setToken({
+                access: accessToken as string,
+                refresh: refreshToken as string
             })
             setIsLoading(false);
             setCourseContentData(response.data.content);
@@ -325,29 +321,15 @@ const CourseAccessScreen = () => {
             ) : (
                 <ScrollView style={{ flex: 1, padding: 10 }}>
                     <View style={{ width: "100%", aspectRatio: 18 / 9, borderRadius: 10 }}>
-                        {/* <MuxVideo
-                            style={{width: "100%", height: 200}}
-                            source={{
-                                uri:
-                                    `https://stream.mux.com/${videoData.videoId}.m3u8?token=${token}`,
-                            }}
-                            controls
-                            muted
-                            muxOptions={{
-                                application_name: app.expo.name,            // (required) the name of your application
-                                application_version: app.expo.version,      // the version of your application (optional, but encouraged)
-                                data: {
-                                    env_key: '8m01he8sfkme3cie3juold22i',     // (required)
-                                    video_id: videoData.id,             // (required)
-                                    video_title: 'My awesome video',
-                                    player_software_version: '5.0.2',     // (optional, but encouraged) the version of react-native-video that you are using
-                                    player_name: 'React Native Player',  // See metadata docs for available metadata fields https://docs.mux.com/docs/web-integration-guide#section-5-add-metadata
-                                },
-                            }}
-                        /> */}
                         <Video 
                             ref={videoRef}
-                            source={{uri: `${URL_VIDEOS}/${courseContentData[activeVideo]?.videoUrl}`}}
+                            source={{
+                                uri: `${URL_VIDEO}${videoData}`,
+                                headers: {
+                                    'access-token': token.access,
+                                    'refresh-token': token.refresh
+                                }
+                            }}
                             style={{width: widthPercentageToDP(90), marginHorizontal: 'auto', height: 200}}
                             controls={true} 
                             allowsExternalPlayback={false}

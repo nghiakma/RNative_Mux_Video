@@ -59,7 +59,7 @@ const CourseLesson = ({ courseDetails }: { courseDetails: CoursesType }) => {
                         return (
                             <>
                                 <View
-                                    key={index}
+                                    key={`${index}-vssafd`}
                                     style={{
                                         flexDirection: "row",
                                         alignItems: "center",
@@ -103,7 +103,7 @@ const CourseLesson = ({ courseDetails }: { courseDetails: CoursesType }) => {
                                                                     fontFamily: "Nunito_400Regular"
                                                                 }}>
                                                                     {item.videoLength}{" "}
-                                                                    {item.videoLength > 60 ? "hour" : "minutes"}
+                                                                    {item.videoLength > 60 ? "giờ" : "phút"}
                                                                 </Text>
                                                             </View>
                                                         </View>
