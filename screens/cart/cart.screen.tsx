@@ -94,7 +94,7 @@ const CartScreen = () => {
             );
             const { client_secret: clientSecret } = paymentIntentResponse.data;
             const initSheetResponse = await initPaymentSheet({
-                merchantDisplayName: "Becodemy Private Ltd.",
+                merchantDisplayName: "Duy Nghia",
                 paymentIntentClientSecret: clientSecret,
                 customFlow: false,
                 style: 'automatic',
