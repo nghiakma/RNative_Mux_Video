@@ -72,6 +72,8 @@ const index = () => {
         } catch (error) {
             console.log(error);
             router.push("/(routes)/sign-in");
+        }finally{
+            setLoading(false);
         }
     }
 

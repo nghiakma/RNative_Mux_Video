@@ -237,7 +237,9 @@ const SignInScreen = () => {
                                 </Text>
                             </View>
                         )}
-                        <TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => router.push("/(routes)/forget-password")}
+                        >
                             <Text
                                 style={[
                                     styles.forgotSection,

@@ -15,7 +15,6 @@ const OnBoardingScreen = () => {
         return null;
     }
     return (
-        // <LinearGradient colors={["E5ECF9", "#F6F7F9"]} style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
             <View style={styles.firstContainer}>
                 <View>
@@ -67,7 +66,6 @@ const OnBoardingScreen = () => {
                 </TouchableOpacity>
             </View>
         </View>
-        // </LinearGradient>
     )
 }
 

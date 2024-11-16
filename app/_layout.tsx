@@ -110,6 +110,9 @@ function RootLayoutNav() {
               headerBackTitle: "Trở về"
             }}
           />
+          <Stack.Screen
+            name='(routes)/forget-password/index'
+          />
         </Stack>
       </ToastProvider>
     </Provider>
