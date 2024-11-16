@@ -94,6 +94,7 @@ const VerifyAccountScreen = () => {
             })
         }
     }
+    
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <View style={[styles.container]}>

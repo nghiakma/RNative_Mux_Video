@@ -113,6 +113,9 @@ function RootLayoutNav() {
           <Stack.Screen
             name='(routes)/forget-password/index'
           />
+          <Stack.Screen
+            name='(routes)/reset-password/index'
+          />
         </Stack>
       </ToastProvider>
     </Provider>
