@@ -17,9 +17,6 @@ import muxReactNativeVideo from '@mux/mux-data-react-native-video';
 import { useDispatch } from "react-redux";
 import * as userActions from '../../utils/store/actions';
 
-const MuxVideo = muxReactNativeVideo(Video);
-
-
 const styles = StyleSheet.create({
     button: {
         width: widthPercentageToDP("40%"),
@@ -67,8 +64,7 @@ const CourseAccessScreen = () => {
         refresh: ''
     });
     const [videoData, setVideoData] = useState('');
-    
-    const [progresses, setProgresses] = useState<Progress[]>([]);
+    // const [progresses, setProgresses] = useState<Progress[]>([]);
     const [courseProgress, setCourseProgress] = useState<Progress>();
     const [lessonInfo, setLessonInfo] = useState<Chapter>({
         chapterId: "",
@@ -86,6 +82,12 @@ const CourseAccessScreen = () => {
 
     const loadVideoAndChapterState = async  () => {
         try {
+            let _lessonInfo = courseProgress?.chapters.find(chapter => chapter.chapterId === courseContentData[activeVideo]._id);
+            let _clone = {
+                chapterId: _lessonInfo?.chapterId,
+                isCompleted: _lessonInfo?.isCompleted
+            } as Chapter;
+            setLessonInfo(_clone);
             const accessToken = await AsyncStorage.getItem('access_token');
             const refreshToken = await AsyncStorage.getItem('refresh_token');
             const response = await axios.get(`${URL_VIDEO}/api/files/${courseContentData[activeVideo].videoUrl}`, {
@@ -97,12 +99,6 @@ const CourseAccessScreen = () => {
             if(response.data){
                 setVideoData(response.data.url);
             }
-            let _lessonInfo = courseProgress?.chapters.find(chapter => chapter.chapterId === courseContentData[activeVideo]._id);
-            let _clone = {
-                chapterId: _lessonInfo?.chapterId,
-                isCompleted: _lessonInfo?.isCompleted
-            } as Chapter;
-            setLessonInfo(_clone);
         } catch (error) {
             console.log(error);
             setIsLoading(false);
@@ -124,13 +120,6 @@ const CourseAccessScreen = () => {
             subscription();
         }, [])
     )
-
-    useEffect(() => {
-        if(progresses.length > 0){
-            let _data = progresses.find(progress => progress.courseId === data._id);
-            setCourseProgress(_data);
-        }
-    }, [progresses]);
 
     const loadProgressOfUser = async () => {
         try {
