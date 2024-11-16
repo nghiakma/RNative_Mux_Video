@@ -80,7 +80,7 @@ const CartScreen = () => {
             const accessToken = await AsyncStorage.getItem("access_token");
             const refreshToken = await AsyncStorage.getItem("refresh_token");
             const amount = Math.round(
-                cartItems.reduce((total, item) => total + item.price, 0)
+                cartItems?.reduce((total, item) => total + item.price, 0)
             );
             const paymentIntentResponse = await axios.post(
                 `${URL_SERVER}/payment`,
