@@ -47,12 +47,12 @@ export default function CourseCard({ item }: { item: CoursesType }) {
 
     const calculateProgressBar = () => {
         let progress = progresses.find((pro: any) => pro.courseId === item._id);
-        let progressBarValue = progress.progress * 100;
+        let progressBarValue = progress.progress;
         setProgressFill(progressBarValue);
     }
 
     const getProgressColor = () => {
-        let progress: number = progressFill / 100;
+        let progress: number = progressFill;//chi lay tu 0-1
         return progress < 0.5 ? '#1c86b7' : '#237867';
     }
 
@@ -184,7 +184,7 @@ export default function CourseCard({ item }: { item: CoursesType }) {
                 { showProgress ? (
                     <View style={{gap: 4, paddingTop: 10}}>
                         <Progress.Bar 
-                            progress={progressFill / 100}
+                            progress={progressFill}
                             width={wp(80)}
                             color={getProgressColor()}
                         />
@@ -193,7 +193,7 @@ export default function CourseCard({ item }: { item: CoursesType }) {
                                 color: getProgressColor()
                             }}
                         >
-                            Hoàn thành {Math.round(progressFill)}%
+                            Hoàn thành {Math.round(progressFill * 100)}%
                         </Text>
                     </View>
                 ):(

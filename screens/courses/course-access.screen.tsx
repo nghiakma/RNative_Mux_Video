@@ -241,16 +241,12 @@ const CourseAccessScreen = () => {
                 chapterId: chapterId, 
                 isCompleted: true
             } as Chapter);
-            let newCourseProgress: Progress = {
-                courseId: data._id,
-                chapters: newChapters!
-            }
-            setCourseProgress(newCourseProgress);
+            
             setLessonInfo({
                 chapterId: chapterId,
                 isCompleted: true
             });
-            let newProgress = calculateProgressBar(newChapters ?? []);
+            let newProgress = calculateProgressBar(newChapters ?? []); 
             let payload = {
                 courseId: data._id,
                 progress: newProgress,

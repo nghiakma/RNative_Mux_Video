@@ -109,6 +109,7 @@ const SignUpScreen = () => {
             setUserInfo({ ...userInfo, email: "", password: "" });
             return false;
         }
+        
         setError({
             ...error,
             email: ""

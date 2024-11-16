@@ -18,15 +18,6 @@ const AllCourses = () => {
     const [courses, setCourses] = useState<CoursesType[]>([]);
     const [progresses, setProgresses] = useState<Progress[]>([]);
     const dispatch = useDispatch();
-
-    useEffect(() => {
-        const unsubscribe = navigation.addListener('focus', () => {
-            loadAllCourses();
-            loadProgressOfUser();
-        });
-
-        return unsubscribe; // Hủy đăng ký khi component unmount
-    }, [navigation]);
     
     useEffect(() => {
         loadAllCourses();

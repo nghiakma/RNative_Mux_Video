@@ -26,10 +26,7 @@ const index = () => {
         try {
             const accessToken = await AsyncStorage.getItem('access_token');
             const refreshToken = await AsyncStorage.getItem('refresh_token');
-            setToken({
-                access: accessToken as string,
-                refresh: refreshToken as string
-            });
+            
             const response = await axios.get(`${URL_SERVER}/wishlist`, {
                 headers: {
                     'access-token': accessToken,
@@ -62,7 +59,7 @@ const index = () => {
             if(response.data){
                 const {_id, name, email, avatar} = response.data.user;
                 let payload = {
-                    _id, name, email, avatarUrl: avatar.url
+                    _id, name, email, avatarUrl: avatar?.url
                 };
                 dispatch(userActions.saveUserInfo(payload));
             }else{
@@ -71,7 +68,7 @@ const index = () => {
             setLoading(false);
         } catch (error) {
             console.log(error);
-            router.push("/(routes)/sign-in");
+            // router.push("/(routes)/sign-in");
         }finally{
             setLoading(false);
         }

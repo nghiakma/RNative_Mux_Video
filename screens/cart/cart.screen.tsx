@@ -1,4 +1,4 @@
-import { URL_SERVER } from "@/utils/url";
+import { URL_IMAGES, URL_SERVER } from "@/utils/url";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useStripe } from "@stripe/stripe-react-native";
 import axios from "axios";
@@ -42,7 +42,7 @@ const CartScreen = () => {
             (total, item) => total + item.price,
             0
         );
-        return totalPrice.toFixed(2);
+        return totalPrice;
     }
 
     const OnHandleCourseDetails = (courseDetails: any) => {
@@ -80,7 +80,7 @@ const CartScreen = () => {
             const accessToken = await AsyncStorage.getItem("access_token");
             const refreshToken = await AsyncStorage.getItem("refresh_token");
             const amount = Math.round(
-                cartItems.reduce((total, item) => total + item.price, 0) / 1000
+                cartItems.reduce((total, item) => total + item.price, 0)
             );
             const paymentIntentResponse = await axios.post(
                 `${URL_SERVER}/payment`,
@@ -95,7 +95,14 @@ const CartScreen = () => {
             const { client_secret: clientSecret } = paymentIntentResponse.data;
             const initSheetResponse = await initPaymentSheet({
                 merchantDisplayName: "Becodemy Private Ltd.",
-                paymentIntentClientSecret: clientSecret
+                paymentIntentClientSecret: clientSecret,
+                customFlow: false,
+                style: 'automatic',
+                defaultBillingDetails: {
+                  address: {
+                    country: 'VN', // Set country to Vietnam
+                  }
+                },
             });
             if (initSheetResponse.error) {
                 console.error(initSheetResponse.error);
@@ -197,7 +204,7 @@ const CartScreen = () => {
                             >
                                 <TouchableOpacity onPress={() => OnHandleCourseDetails(item)}>
                                     <Image
-                                        source={{ uri: item.thumbnail?.url ?? '' }}
+                                        source={{ uri: `${URL_IMAGES}/${item?.thumbnail?.url ?? ''}` }}
                                         style={{
                                             width: 100,
                                             height: 100,
