@@ -6,7 +6,9 @@ export const UserActions = Object.freeze({
     SAVE_WISHLIST: 'SAVE_WISHLIST',
     PUSH_WISHCOURSE: 'PUSH_WISHCOURSE',
     REMOVE_WISHCOURSE: 'REMOVE_WISHCOURSE',
-    RESET_WISHLIST: 'RESET_WISHLIST'
+    RESET_WISHLIST: 'RESET_WISHLIST',
+    SAVE_USER_INFO: 'SAVE_USER_INFO',
+    RESET_USER_INFO: 'RESET_USER_INFO'
 })
 
 export const saveProgressOfUser = (payload: { courseId: string; progress: number; name: string, total: number }[]) => ({
@@ -41,4 +43,13 @@ export const pushWishCourse = (payload: { _id: string, userId: string, courseId:
 export const removeWishCourse = (payload: { _id: string }) => ({
     type: UserActions.REMOVE_WISHCOURSE,
     payload: payload
-})
+});
+
+export const saveUserInfo = (payload: { _id: string, name: string, email: string, avatarUrl: string }) => ({
+    type: UserActions.SAVE_USER_INFO,
+    payload: payload
+});
+
+export const resetUserInfo = () => ({
+    type: UserActions.RESET_USER_INFO
+});

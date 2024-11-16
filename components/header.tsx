@@ -2,14 +2,15 @@ import useUser from "@/hooks/useUser";
 import { Raleway_700Bold } from "@expo-google-fonts/raleway";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFonts } from "expo-font";
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import UserImage from "@/assets/images/icons/User.png";
 import { router } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import axios from "axios";
-import { URL_SERVER } from "@/utils/url";
+import { URL_IMAGES, URL_SERVER } from "@/utils/url";
+import { useSelector } from "react-redux";
 
 const styles = StyleSheet.create({
     container: {
@@ -70,13 +71,18 @@ const styles = StyleSheet.create({
 
 const HeaderComponent = () => {
     const [cartItems, setCartItems] = useState([]);
-    const { user } = useUser();
-
+    // const { user } = useUser();
+    const [avatar, setAvatar] = useState('');
+    const user = useSelector((state: any) => state.user);
     useFocusEffect(
         useCallback(() => {
             LoadCartItems();
         }, [])
     );
+
+    useEffect(() => {
+        setAvatar(user.userInfo.avatarUrl);
+    }, [user]);
 
     const LoadCartItems = async () => {
         try {
@@ -110,7 +116,9 @@ const HeaderComponent = () => {
                 <TouchableOpacity onPress={() => router.push("/(tabs)/profile")}>
                     <Image
                         style={styles.image}
-                        source={{uri: `${user?.avatar ? user.avatar.url : UserImage}`}}
+                        source={{
+                            uri: `${URL_IMAGES}/${avatar}`
+                        }}
                     />
                 </TouchableOpacity>
                 <View>
@@ -118,7 +126,7 @@ const HeaderComponent = () => {
                         Xin chào,
                     </Text>
                     <Text style={[styles.text, { fontFamily: "Raleway_700Bold" }]}>
-                        {user?.name ? user.name : "Người dùng ^^"}
+                        {user.userInfo.name !== '' ? user.userInfo.name : "Người dùng ^^"}
                     </Text>
                 </View>
             </View>

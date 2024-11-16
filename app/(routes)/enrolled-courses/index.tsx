@@ -18,53 +18,7 @@ import { useSelector } from "react-redux";
 const index = () => {
     const [loader, setLoader] = useState(false);
     const { loading } = useUser();
-    const progresses = useSelector((state: any) => state.user.progress)
-    // useFocusEffect(
-    //     useCallback(() => {
-    //         FetchCoursesOfUser();
-    //     }, [])
-    // )
-
-    // const FetchCoursesOfUser = async () => {
-    //     let paymented: { _id: string }[] = [];
-    //     try {
-    //         let stringifyPaymented = await AsyncStorage.getItem("paymented");
-    //         if (stringifyPaymented) {
-    //             paymented = JSON.parse(stringifyPaymented);
-    //         }
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    //     try {
-    //         const accessToken = await AsyncStorage.getItem("access_token");
-    //         const refreshToken = await AsyncStorage.getItem("refresh_token");
-    //         const responseUser = await axios.get(`${URL_SERVER}/me`, {
-    //             headers: {
-    //                 "access-token": accessToken,
-    //                 "refresh-token": refreshToken
-    //             }
-    //         })
-    //         const userCourses: { _id: string }[] = responseUser.data.user.courses || [];
-    //         const response = await axios.get(`${URL_SERVER}/get-courses`, {
-    //             headers: { 'Cache-Control': 'no-cache' }
-    //         });
-    //         const courses: CoursesType[] = response.data.courses;
-    //         const coursesOfUser: CoursesType[] = [];
-    //         // Duyệt qua các khóa học và thêm vào danh sách khóa học của người dùng nếu tồn tại
-    //         courses.forEach((course: CoursesType) => {
-    //             const isUserCourse = userCourses.some((userCourse: any) => userCourse._id === course._id);
-    //             const isPaymentedCourse = paymented.some(payment => payment._id === course._id);
-
-    //             if (isPaymentedCourse || isUserCourse) {
-    //                 coursesOfUser.push(course);
-    //             }
-    //         });
-
-    //         setCourses(coursesOfUser);
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // }
+    const progresses = useSelector((state: any) => state.user.progress);
 
     return (
         <>

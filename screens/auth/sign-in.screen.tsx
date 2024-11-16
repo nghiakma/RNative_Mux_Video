@@ -71,7 +71,6 @@ const styles = StyleSheet.create({
 });
 
 const SignInScreen = () => {
-    const URL_SERVER_ENV = process.env.EXPO_PUBLIC_URL_SERVER;
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [buttonSpinner, setButtonSpinner] = useState(false);
     const [userInfo, setUserInfo] = useState({

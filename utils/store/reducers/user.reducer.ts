@@ -1,10 +1,18 @@
 import { UserActions } from "../actions/user.actions"
 
-const initState = {
+const defaultState = {
     progress: [],
     paymented: [],
-    wishList: []
+    wishList: [],
+    userInfo: {
+        _id: '',
+        name: '',
+        email: '',
+        avatarUrl: ''
+    }
 }
+
+const initState = defaultState;
 
 export const UserReducer = (state = initState, actions: Action) => {
     switch (actions.type) {
@@ -62,6 +70,18 @@ export const UserReducer = (state = initState, actions: Action) => {
             return {
                 ...state,
                 wishList: _wishList
+            }
+        }
+        case UserActions.SAVE_USER_INFO: {
+            let _userInfo = actions.payload;
+            return {
+                ...state,
+                userInfo: _userInfo
+            }
+        }
+        case UserActions.RESET_USER_INFO: {
+            return {
+                ...defaultState
             }
         }
         default:

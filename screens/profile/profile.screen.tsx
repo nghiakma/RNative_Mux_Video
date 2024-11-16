@@ -4,23 +4,22 @@ import { Raleway_600SemiBold, Raleway_700Bold } from "@expo-google-fonts/raleway
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFonts } from "expo-font";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native"
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import axios from "axios";
-import { URL_SERVER } from "@/utils/url";
+import { URL_IMAGES, URL_SERVER, URL_VIDEO } from "@/utils/url";
 import Loader from "@/components/loader";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign, FontAwesome, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import * as userActions from "../../utils/store/actions";
 const ProfileScreen = () => {
-    const { user, loading, setRefetch } = useUser();
     const [image, setImage] = useState<any>(null);
     const [loader, setLoader] = useState(false);
     const dispatch = useDispatch();
-
+    const user = useSelector((state: any) => state.user);
     let [fontsLoaded, fontsError] = useFonts({
         Raleway_600SemiBold,
         Raleway_700Bold,
@@ -39,6 +38,7 @@ const ProfileScreen = () => {
         await AsyncStorage.removeItem("cart");
         await AsyncStorage.removeItem("paymented");
         dispatch(userActions.saveProgressOfUser([]));
+        dispatch(userActions.resetUserInfo());
         router.push("/(routes)/sign-in");
     }
 
@@ -51,12 +51,19 @@ const ProfileScreen = () => {
         });
 
         if (!result.canceled) {
-            const base64 = await FileSystem.readAsStringAsync(result.assets[0].uri, {
-                encoding: FileSystem.EncodingType.Base64,
-            });
             setLoader(true);
-            const base64Image = `data:image/jpeg;base64,${base64}`;
-            setImage(base64Image);
+        
+            const imageFile = {
+                uri: result.assets[0].uri,
+                type: result.assets[0].mimeType, // 'image/png'
+                name: result.assets[0].fileName,  // '9ef9877c-1e37-43d9-bacd-864be6cc0eb7.png'
+                size: result.assets[0].fileSize,  // 75016
+            };
+            // Tạo form data
+            const formData = new FormData();
+            
+            // Thêm file ảnh vào form data
+            formData.append('avatar', imageFile as any);
 
             const accessToken = await AsyncStorage.getItem("access_token");
             const refreshToken = await AsyncStorage.getItem("refresh_token");
@@ -64,17 +71,24 @@ const ProfileScreen = () => {
             try {
                 const response = await axios.put(
                     `${URL_SERVER}/update-user-avatar`,
-                    { avatar: base64Image },
+                    formData,
                     {
                         headers: {
+                            'Content-Type': 'multipart/form-data',
                             "access-token": accessToken,
                             "refresh-token": refreshToken
                         }
                     }
                 );
+                
                 if (response.data) {
-                    setRefetch(true),
-                        setLoader(false);
+                    let {_id, name, email, avatar} = response.data.user;
+                    let payload = {
+                        _id, name, email, avatarUrl: avatar.url
+                    };
+                    dispatch(userActions.saveUserInfo(payload));
+                    setImage(avatar.url ?? '');
+                    setLoader(false);
                 }
             } catch (error) {
                 console.log(error);
@@ -82,9 +96,13 @@ const ProfileScreen = () => {
             }
         }
     }
+
+    useEffect(() => {
+        setImage(user.userInfo.avatarUrl);
+    }, [])
     return (
         <>
-            {loader || loading ? (
+            {loader ? (
                 <Loader />
             ) : (
                 <SafeAreaView style={{ flex: 1 }}>
@@ -93,10 +111,8 @@ const ProfileScreen = () => {
                             <View style={{ position: "relative" }}>
                                 <Image
                                     source={{
-                                        uri:
-                                            image ||
-                                            user?.avatar?.url ||
-                                            "https://res.cloudinary.com/dshp9jnuy/image/upload/v1665822253/avatars/nrxsg8sd9iy10bbsoenn.png",
+                                        uri: 
+                                            `${URL_IMAGES}/${image}`
                                     }}
                                     style={{ width: 90, height: 90, borderRadius: 100 }}
                                 />
@@ -120,7 +136,7 @@ const ProfileScreen = () => {
                             </View>
                         </View>
                         <Text style={{ textAlign: "center", fontSize: 25, paddingTop: 10, fontWeight: "600" }}>
-                            {user?.name}
+                            {user.userInfo.name}
                         </Text>
                         <View style={{ marginHorizontal: 16, marginTop: 30 }}>
                             <Text style={{ fontSize: 20, marginBottom: 16, fontFamily: "Raleway_700Bold" }}>
