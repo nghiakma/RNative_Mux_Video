@@ -33,7 +33,7 @@ const CourseDetailsScreen = () => {
     const { user, loading } = useUser();
     const [isExpanded, setIsExpanded] = useState(false);
     const { item } = useLocalSearchParams();
-    const courseData: CoursesType = JSON.parse(item as string); // truyền ngu vl 
+    const courseData: CoursesType = item ? JSON.parse(item as string) : null; // truyền ngu vl 
     const [courseInfo, setCourseInfo] = useState<CoursesType>();
     const [checkPurchased, setCheckPurchased] = useState(false);
     const [videoData, setVideoData] = useState("");
@@ -99,7 +99,7 @@ const CourseDetailsScreen = () => {
     const OnHandleAddToCart = async () => {
         try {
             const existingCartData = await AsyncStorage.getItem("cart");
-            const cartData = existingCartData ? JSON.parse(existingCartData) : [];
+            const cartData = existingCartData !== null ? JSON.parse(existingCartData) : [];
             const accessToken = await AsyncStorage.getItem("access_token");
             const refreshToken = await AsyncStorage.getItem("refresh_token");
             let itemExists = cartData.some((item: any) => item._id === courseData._id);

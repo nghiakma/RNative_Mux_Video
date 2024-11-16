@@ -49,10 +49,10 @@ const styles = StyleSheet.create({
 });
 
 const CourseAccessScreen = () => {
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const { user } = useUser();
     const { courseData } = useLocalSearchParams();
-    const data: CoursesType = JSON.parse(courseData as string);
+    const data: CoursesType = courseData ? JSON.parse(courseData as string) : null;
     const [courseReviews, setCourseReviews] = useState<ReviewType[]>(data?.reviews ? data.reviews : []);
 
     const [courseContentData, setCourseContentData] = useState<CourseDataType[]>([]);
@@ -80,38 +80,42 @@ const CourseAccessScreen = () => {
     
     useEffect(() => {
         if (courseContentData[activeVideo]) {
-            axios.get(`${URL_VIDEO}/api/files/${courseContentData[activeVideo].videoUrl}`, {
-                headers: {
-                    'access-token': token.access,
-                    'refresh-token': token.refresh
-                }
-            })
-                .then((result) => {
-                    setVideoData(result.data.url);
-                })
-            let _lessonInfo = courseProgress?.chapters.find(chapter => chapter.chapterId === courseContentData[activeVideo]._id);
-            let _clone = {
-                chapterId: _lessonInfo?.chapterId,
-                isCompleted: _lessonInfo?.isCompleted ?? false
-            } as Chapter
-            setLessonInfo(_clone);
+            loadVideoAndChapterState();
         }
     }, [courseContentData[activeVideo], activeVideo])
 
-    useEffect(() => {
-        if(progresses.length > 0){
-            let _data = progresses.find(progress => progress.courseId === data._id);
-            setCourseProgress(_data);
+    const loadVideoAndChapterState = async  () => {
+        try {
+            const accessToken = await AsyncStorage.getItem('access_token');
+            const refreshToken = await AsyncStorage.getItem('refresh_token');
+            const response = await axios.get(`${URL_VIDEO}/api/files/${courseContentData[activeVideo].videoUrl}`, {
+                headers: {
+                    'access-token': accessToken,
+                    'refresh-token': refreshToken
+                }
+            })
+            if(response.data){
+                setVideoData(response.data.url);
+            }
+            let _lessonInfo = courseProgress?.chapters.find(chapter => chapter.chapterId === courseContentData[activeVideo]._id);
+            let _clone = {
+                chapterId: _lessonInfo?.chapterId,
+                isCompleted: _lessonInfo?.isCompleted
+            } as Chapter;
+            setLessonInfo(_clone);
+        } catch (error) {
+            console.log(error);
+            setIsLoading(false);
         }
-    }, [progresses])
+    }
 
     useFocusEffect(
         useCallback(() => {
-            const subscription = () => {
-                loadProgressOfUser();
-                FetchCourseContent();
+            const subscription = async () => {
+                await loadProgressOfUser();
+                await FetchCourseContent();
                 const isReviewAvailable = courseReviews.find(
-                    (i: any) => i.user._id === user?._id
+                    (i: any) => i.user?._id === user?._id
                 )
                 if (isReviewAvailable) {
                     setReviewAvailable(true);
@@ -120,6 +124,13 @@ const CourseAccessScreen = () => {
             subscription();
         }, [])
     )
+
+    useEffect(() => {
+        if(progresses.length > 0){
+            let _data = progresses.find(progress => progress.courseId === data._id);
+            setCourseProgress(_data);
+        }
+    }, [progresses]);
 
     const loadProgressOfUser = async () => {
         try {
@@ -131,10 +142,10 @@ const CourseAccessScreen = () => {
                     'refresh-token': refreshToken
                 }
             });
-            let _processes: Progress[] = [];
+            let _progress: Progress[] = [];
             if(response.data.response && response.data.response.progress){
                 let _ = response.data.response.progress;
-                _processes = _.map((progress: Progress) => ({
+                _progress = _.map((progress: Progress) => ({
                     courseId: progress.courseId,
                     chapters: progress.chapters.map((chapter: Chapter) => ({
                         chapterId: chapter.chapterId,
@@ -142,7 +153,15 @@ const CourseAccessScreen = () => {
                     }))
                 }));
             }
-            setProgresses(_processes);
+            // setProgresses(_processes); // Chứa Mảng [{CourseId và các Chapter {chapterId, isCompleted}}]
+            if(_progress.length > 0){
+                let progressOfCourse = _progress.filter(pro => pro.courseId === data._id)[0];
+                let _clone = {
+                    courseId: progressOfCourse.courseId,
+                    chapters: progressOfCourse.chapters
+                } as Progress;
+                setCourseProgress(_clone);
+            }
         } catch (error) {
             console.log(error);
         }
@@ -158,12 +177,14 @@ const CourseAccessScreen = () => {
                     "refresh-token": refreshToken
                 }
             });
+            if(response.data){
+                setCourseContentData(response.data.content);
+            }
             setToken({
                 access: accessToken as string,
                 refresh: refreshToken as string
             })
             setIsLoading(false);
-            setCourseContentData(response.data.content);
         } catch (error) {
             console.log(error);
             setIsLoading(false);
@@ -241,7 +262,12 @@ const CourseAccessScreen = () => {
                 chapterId: chapterId, 
                 isCompleted: true
             } as Chapter);
-            
+            // Update lại các bài học hoàn thành để dùng cho các lần sau
+            let currCourseProgress = {
+                courseId: courseProgress?.courseId,
+                chapters: newChapters
+            } as Progress
+            setCourseProgress(currCourseProgress);
             setLessonInfo({
                 chapterId: chapterId,
                 isCompleted: true
