@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
 const CourseAccessScreen = () => {
     const [isLoading, setIsLoading] = useState(false);
     const { user } = useUser();
-    const { courseData } = useLocalSearchParams();
+    const { courseData, courseId } = useLocalSearchParams();
     const data: CoursesType = courseData ? JSON.parse(courseData as string) : null;
     const [courseReviews, setCourseReviews] = useState<ReviewType[]>(data?.reviews ? data.reviews : []);
 
@@ -111,7 +111,7 @@ const CourseAccessScreen = () => {
                 await loadProgressOfUser();
                 await FetchCourseContent();
                 const isReviewAvailable = courseReviews.find(
-                    (i: any) => i.user?._id === user?._id
+                    (i: any) => i?.user?._id === user?._id
                 )
                 if (isReviewAvailable) {
                     setReviewAvailable(true);
@@ -144,7 +144,8 @@ const CourseAccessScreen = () => {
             }
             // setProgresses(_processes); // Chứa Mảng [{CourseId và các Chapter {chapterId, isCompleted}}]
             if(_progress.length > 0){
-                let progressOfCourse = _progress.filter(pro => pro.courseId === data._id)[0];
+                console.log(data);
+                let progressOfCourse = _progress.filter(pro => pro.courseId === courseId)[0];
                 let _clone = {
                     courseId: progressOfCourse.courseId,
                     chapters: progressOfCourse.chapters
@@ -160,7 +161,7 @@ const CourseAccessScreen = () => {
         try {
             const accessToken = await AsyncStorage.getItem("access_token");
             const refreshToken = await AsyncStorage.getItem("refresh_token");
-            const response = await axios.get(`${URL_SERVER}/get-course-content/${data._id}`, {
+            const response = await axios.get(`${URL_SERVER}/get-course-content/${courseId}`, {
                 headers: {
                     "access-token": accessToken,
                     "refresh-token": refreshToken
@@ -187,8 +188,8 @@ const CourseAccessScreen = () => {
             const refreshToken = await AsyncStorage.getItem("refresh_token");
             await axios.put(`${URL_SERVER}/add-question`, {
                 question: question,
-                courseId: data._id,
-                contentId: courseContentData[activeVideo]._id
+                courseId: courseId,
+                contentId: courseContentData[activeVideo]?._id
             }, {
                 headers: {
                     "access-token": accessToken,
@@ -210,7 +211,7 @@ const CourseAccessScreen = () => {
         try {
             const accessToken = await AsyncStorage.getItem("access_token");
             const refreshToken = await AsyncStorage.getItem("refresh_token");
-            await axios.put(`${URL_SERVER}/add-review/${data._id}`,
+            await axios.put(`${URL_SERVER}/add-review/${courseId}`,
                 { review, rating },
                 {
                     headers: {
@@ -453,7 +454,7 @@ const CourseAccessScreen = () => {
                                         params: {
                                             courseData: courseData,
                                             activeVideo: activeVideo,
-                                            id: data._id
+                                            id: courseId
                                         }
                                     })}
                                     style={styles.btn}
@@ -509,7 +510,7 @@ const CourseAccessScreen = () => {
                                             onPress={() => router.push({
                                                 pathname: '/(routes)/note-lesson',
                                                 params: {
-                                                    courseId: data._id,
+                                                    courseId: courseId,
                                                     courseDataId: lessonInfo.chapterId, 
                                                     name: data.name,
                                                     nameLesson: `${courseContentData[activeVideo].title}`

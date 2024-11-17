@@ -141,22 +141,6 @@ const CourseDetailsScreen = () => {
                 <View style={{ flex: 1, marginTop: 16 }}>
                     <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
                         <View style={{ marginHorizontal: 16 }}>
-                            <View
-                                style={{
-                                    position: "absolute",
-                                    zIndex: 1,
-                                    backgroundColor: "#FFB013",
-                                    borderRadius: 54,
-                                    paddingVertical: 8,
-                                    paddingHorizontal: 12,
-                                    marginTop: 8,
-                                    marginLeft: 20
-                                }}
-                            >
-                                <Text style={{ color: "black", fontSize: 14, fontFamily: "Nunito_600SemiBold" }}>
-                                    Bán chạy
-                                </Text>
-                            </View>
                             <View style={{ position: "absolute", zIndex: 14, right: 0 }}>
                                 <View
                                     style={{
@@ -440,7 +424,7 @@ const CourseDetailsScreen = () => {
                                 style={{ backgroundColor: "#2467EC", paddingVertical: 16, borderRadius: 4 }}
                                 onPress={() => router.push({
                                     pathname: "/(routes)/course-access",
-                                    params: { courseData: JSON.stringify(courseData) }
+                                    params: { courseData: JSON.stringify(courseData), courseId: courseData._id }
                                 })}
                             >
                                 <Text
