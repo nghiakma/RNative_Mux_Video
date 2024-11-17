@@ -142,9 +142,7 @@ const CourseAccessScreen = () => {
                     }))
                 }));
             }
-            // setProgresses(_processes); // Chứa Mảng [{CourseId và các Chapter {chapterId, isCompleted}}]
             if(_progress.length > 0){
-                console.log(data);
                 let progressOfCourse = _progress.filter(pro => pro.courseId === courseId)[0];
                 let _clone = {
                     courseId: progressOfCourse.courseId,
@@ -302,29 +300,6 @@ const CourseAccessScreen = () => {
         }
         return stars;
     }
-
-    const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get('window');
-    const pan = useRef(new Animated.ValueXY()).current;
-    const panResponder = useRef(
-        PanResponder.create({
-            onMoveShouldSetPanResponder: () => true,
-            onPanResponderMove: (e, gestureState) => {
-                const newX = Math.min(
-                    Math.max(gestureState.dx, 0),
-                    ScreenWidth - 100 // Giới hạn phải (nút rộng 100px)
-                );
-                const newY = Math.min(
-                    Math.max(gestureState.dy + 100, 100), // Bắt đầu từ vị trí 100px
-                    ScreenHeight - 200 // Giới hạn dưới
-                );
-
-                pan.setValue({ x: newX, y: newY });
-            },
-            onPanResponderRelease: () => {
-                pan.flattenOffset();
-            },
-        })
-    ).current;
 
     return (
         <>
@@ -488,7 +463,7 @@ const CourseAccessScreen = () => {
                                     <Text style={{ fontSize: 18, fontFamily: "Raleway_700Bold" }}>
                                         Tham khảo
                                     </Text>
-                                    <Animated.View
+                                    <TouchableOpacity
                                         style={{
                                             alignItems: 'center',
                                             justifyContent: 'center',
@@ -496,30 +471,24 @@ const CourseAccessScreen = () => {
                                             height: 40,
                                             borderRadius: 50,
                                             backgroundColor: '#0085ff',
-                                            transform: pan.getTranslateTransform(),
                                             shadowColor: '#000', // Màu bóng
                                             shadowOffset: { width: 0, height: 5 }, // Độ lệch bóng
                                             shadowOpacity: 0.3, // Độ mờ của bóng
                                             shadowRadius: 6.27, // Độ lớn của bóng
                                             elevation: 10, // Độ cao của bóng trên Android
                                         }}
-                                        {...panResponder.panHandlers}
-                                        
+                                        onPress={() => router.push({
+                                            pathname: '/(routes)/note-lesson',
+                                            params: {
+                                                courseId: courseId,
+                                                courseDataId: lessonInfo.chapterId, 
+                                                name: data.name,
+                                                nameLesson: `${courseContentData[activeVideo].title}`
+                                            }
+                                        })}
                                     >
-                                        <TouchableOpacity
-                                            onPress={() => router.push({
-                                                pathname: '/(routes)/note-lesson',
-                                                params: {
-                                                    courseId: courseId,
-                                                    courseDataId: lessonInfo.chapterId, 
-                                                    name: data.name,
-                                                    nameLesson: `${courseContentData[activeVideo].title}`
-                                                }
-                                            })}
-                                        >
-                                            <FontAwesome name="sticky-note" size={18} color="white" />
-                                        </TouchableOpacity>
-                                    </Animated.View>
+                                        <FontAwesome name="sticky-note" size={18} color="white" />
+                                    </TouchableOpacity> 
                                 </View>
                                 {courseContentData[activeVideo]?.links.map((link: LinkType, index: number) => (
                                     <View
