@@ -49,7 +49,7 @@ const CourseAccessScreen = () => {
     const [isLoading, setIsLoading] = useState(false);
     const { user } = useUser();
     const { courseData, courseId } = useLocalSearchParams();
-    const data: CoursesType = courseData ? JSON.parse(courseData as string) : null;
+    const data: CoursesType = JSON.parse(courseData as string);
     const [courseReviews, setCourseReviews] = useState<ReviewType[]>(data?.reviews ? data.reviews : []);
 
     const [courseContentData, setCourseContentData] = useState<CourseDataType[]>([]);
@@ -64,7 +64,6 @@ const CourseAccessScreen = () => {
         refresh: ''
     });
     const [videoData, setVideoData] = useState('');
-    // const [progresses, setProgresses] = useState<Progress[]>([]);
     const [courseProgress, setCourseProgress] = useState<Progress>();
     const [lessonInfo, setLessonInfo] = useState<Chapter>({
         chapterId: "",
@@ -82,7 +81,7 @@ const CourseAccessScreen = () => {
 
     const loadVideoAndChapterState = async  () => {
         try {
-            let _lessonInfo = courseProgress?.chapters.find(chapter => chapter.chapterId === courseContentData[activeVideo]._id);
+            let _lessonInfo = courseProgress?.chapters.find(chapter => chapter.chapterId === courseContentData[activeVideo]?._id);
             let _clone = {
                 chapterId: _lessonInfo?.chapterId,
                 isCompleted: _lessonInfo?.isCompleted
@@ -176,7 +175,10 @@ const CourseAccessScreen = () => {
         } catch (error) {
             console.log(error);
             setIsLoading(false);
-            router.push("/(routes)/course-details");
+            router.push({
+                pathname: "/(routes)/course-details",
+                params: { item: JSON.stringify(data), courseId: data?._id },
+            });
         }
     }
 
@@ -262,7 +264,7 @@ const CourseAccessScreen = () => {
             });
             let newProgress = calculateProgressBar(newChapters ?? []); 
             let payload = {
-                courseId: data._id,
+                courseId: courseId + '',
                 progress: newProgress,
                 name: data.name,
                 total: courseProgress?.chapters.length ?? 0
