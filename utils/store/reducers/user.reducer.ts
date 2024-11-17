@@ -8,7 +8,8 @@ const defaultState = {
         _id: '',
         name: '',
         email: '',
-        avatarUrl: ''
+        avatarUrl: '',
+        courses: []
     }
 }
 
