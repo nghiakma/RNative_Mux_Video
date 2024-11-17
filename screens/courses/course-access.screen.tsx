@@ -166,7 +166,6 @@ const CourseAccessScreen = () => {
             });
             if(response.data){
                 setCourseContentData(response.data.content);
-                console.log(response.data);
             }
             setToken({
                 access: accessToken as string,
