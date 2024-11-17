@@ -33,7 +33,7 @@ const CourseDetailsScreen = () => {
     const { user, loading } = useUser();
     const [isExpanded, setIsExpanded] = useState(false);
     const { item } = useLocalSearchParams();
-    const courseData: CoursesType = item ? JSON.parse(item as string) : null; // truyền ngu vl 
+    const [courseData, setCourseData] = useState<CoursesType>(item ? JSON.parse(item as string) : null); // truyền ngu vl 
     const [courseInfo, setCourseInfo] = useState<CoursesType>();
     const [checkPurchased, setCheckPurchased] = useState(false);
     const [videoData, setVideoData] = useState("");
@@ -61,6 +61,7 @@ const CourseDetailsScreen = () => {
             const response = await axios.get(`${URL_SERVER}/get-courses`);
             const _data: CoursesType = response.data?.courses?.filter((item: any) => item._id === courseData._id)[0];
             if(_data){
+                setCourseData(_data);
                 axios.get(`${URL_VIDEO}/api/files/${_data.demoUrl}`, {
                     headers: {
                         'access-token': accessToken,
