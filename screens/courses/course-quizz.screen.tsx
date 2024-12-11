@@ -61,7 +61,6 @@ const CourseQuizzScreen = () => {
                     setShowResults(true);
                     setModalVisible(true);
                 }
-
             } catch (error) {
                 console.log(error);
             }finally{
@@ -98,7 +97,7 @@ const CourseQuizzScreen = () => {
             ...seletedOptions,
             [questionIndex]: option
         };
-        setSelectedOptions(updatedOptions);
+        setSelectedOptions(updatedOptions); // {0: 1, 1: 3, }
     }
 
     const OnHandleSubmit = async () => {
