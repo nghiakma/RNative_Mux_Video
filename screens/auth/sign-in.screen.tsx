@@ -12,6 +12,7 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Toast } from "react-native-toast-notifications";
 import { URL_SERVER } from "@/utils/url";
+import { fetch } from 'react-native-ssl-pinning';
 
 const styles = StyleSheet.create({
     signInImage: {
@@ -120,13 +121,38 @@ const SignInScreen = () => {
                     email: email,
                     password: password
                 });
-                await AsyncStorage.setItem("access_token", response.data.accessToken);
-                await AsyncStorage.setItem("refresh_token", response.data.refreshToken);
-                Toast.show("Đăng nhập thành công", {
-                    type: "success"
+             
+                await AsyncStorage.setItem("activation_login_token", response.data.activationToken);
+                 // Tạo body dữ liệu cho POST request
+            // const body = JSON.stringify({
+            //     email: email,
+            //     password: password
+            // });
+
+            // // Gửi yêu cầu với fetch và SSL Pinning
+            // const response = await fetch(`${URL_SERVER}/login`, {
+            //     method: "POST",
+            //     timeoutInterval: 5000,  // Thời gian timeout 5 giây
+            //     body: body,
+            //     sslPinning: {
+            //         certs: ["cer"],  // Tên chứng chỉ đã thêm vào thư mục assets
+            //     },
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         'Accept': 'application/json; charset=utf-8',
+            //         'Access-Control-Allow-Origin': '*',
+            //         'e_platform': 'mobile',
+            //     }
+            // });
+
+            // // Kiểm tra phản hồi và xử lý
+            // const data = await response.json();
+                Toast.show(response.data.message, {
+                    type: 'success'
                 });
 
-                router.push("/(tabs)");
+                router.push("/(routes)/logincode");
+                // router.push("/(tabs)");
             }
         } catch (error) {
             console.log(error);

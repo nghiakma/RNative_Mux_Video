@@ -9,7 +9,7 @@ import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native"
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import axios from "axios";
-import { URL_IMAGES, URL_SERVER, URL_VIDEO } from "@/utils/url";
+import { URL_IMAGE, URL_IMAGES, URL_SERVER, URL_VIDEO } from "@/utils/url";
 import Loader from "@/components/loader";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign, FontAwesome, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -70,7 +70,7 @@ const ProfileScreen = () => {
 
             try {
                 const response = await axios.put(
-                    `${URL_SERVER}/update-user-avatar`,
+                    `${URL_IMAGE}/update-user-avatar`,
                     formData,
                     {
                         headers: {
@@ -149,7 +149,7 @@ const ProfileScreen = () => {
                                     justifyContent: "space-between",
                                     marginBottom: 20
                                 }}
-
+                                onPress={() => router.push("/(routes)/infor")}
                             >
                                 <View style={{ flexDirection: "row", alignItems: "center", columnGap: 30 }}>
                                     <View

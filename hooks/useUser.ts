@@ -25,6 +25,7 @@ const useUser = () => {
             });
 
             setUser(response.data.user);
+            console.log(response.data.user)
             setLoading(false);
         } catch (error: any) {
             console.log(error);
