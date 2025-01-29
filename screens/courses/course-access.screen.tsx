@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
 
 const CourseAccessScreen = () => {
     const [isLoading, setIsLoading] = useState(false);
-    const { user } = useUser();
+    const { user } = useUser();//lấy thông  //tin user lưu trong redis (phiên người đung)
     const { courseData, courseId } = useLocalSearchParams();
     const data: CoursesType = JSON.parse(courseData as string);
     const [courseReviews, setCourseReviews] = useState<ReviewType[]>(data?.reviews ? data.reviews : []);
@@ -63,7 +63,7 @@ const CourseAccessScreen = () => {
         access: '',
         refresh: ''
     });
-    const [videoData, setVideoData] = useState('');
+    const [videoData, setVideoData] = useState('');//tiến trình bài học
     const [courseProgress, setCourseProgress] = useState<Progress>();
     const [lessonInfo, setLessonInfo] = useState<Chapter>({
         chapterId: "",
@@ -240,7 +240,7 @@ const CourseAccessScreen = () => {
             const accessToken = await AsyncStorage.getItem('access_token');
             const refreshToken = await AsyncStorage.getItem('refresh_token');
             const chapterId = lessonInfo.chapterId;
-            const courseId = courseProgress?.courseId;
+            const courseId = courseProgress?.courseId;//đánh dấu bài học
             await axios.put(`${URL_SERVER}/user/mark-chapter?courseId=${courseId}&chapterId=${chapterId}`, {}, {
                 headers: {
                     'access-token': accessToken,
