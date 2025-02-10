@@ -1,6 +1,6 @@
-# Server: https://github.com/nghiakma/LMS-server
+- Server: https://github.com/nghiakma/LMS-server
 . Nodejs + Mongodb
-# Admin: https://github.com/nghiakma/LMS-admin
+- Admin: https://github.com/nghiakma/LMS-admin
 . Nextjs + tailwind
 # Welcome to your Expo app 👋
 
