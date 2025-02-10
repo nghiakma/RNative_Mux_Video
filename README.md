@@ -1,3 +1,7 @@
+# Server: https://github.com/nghiakma/LMS-server
+. Nodejs + Mongodb
+# Admin: https://github.com/nghiakma/LMS-admin
+. Nextjs + tailwind
 # Welcome to your Expo app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
