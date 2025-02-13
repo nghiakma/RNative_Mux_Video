@@ -2,6 +2,50 @@
 . Nodejs + Mongodb
 - Admin: https://github.com/nghiakma/LMS-admin
 . Nextjs + tailwind
+# 🎓 LMS Learning Platform
+
+**LMS Learning Platform** is a modern online learning system that provides a seamless learning experience for students while supporting effective course management for instructors and administrators.
+
+## 🚀 Key Features
+
+### 🔐 1. User Registration & Authentication
+- Register, log in, and manage personal accounts.
+- Update personal information.
+
+### 📚 2. Course Catalog & Details
+- View detailed course listings on the platform.
+- Search and filter courses based on user preferences.
+
+### 🛒 3. Shopping Cart & Checkout
+- Add, remove, and view course details in the shopping cart.
+- Secure payment processing via integrated payment gateways.
+
+### 🎓 4. Purchased Courses Management
+- Manage purchased courses.
+- Track learning progress for each course.
+
+### ❤️ 5. Wishlist & Favorite Courses
+- Add and remove courses from the wishlist.
+- View a list of favorite courses.
+
+### 🏅 6. Certificates & Achievements
+- Earn certificates upon course completion.
+
+### 📖 7. Learning Progress & Tracking
+- Mark lessons as completed.
+- Take quizzes and add lesson notes.
+
+### ⭐ 8. Course Feedback & Reviews
+- Rate and review courses.
+
+---
+
+## 📌 Tech Stack (Example)
+- **Frontend:** React Native
+- **Backend:** Node.js (Express.js)
+- **Database:** MongoDB
+- **Payment Integration:** ....
+
 # Welcome to your Expo app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
